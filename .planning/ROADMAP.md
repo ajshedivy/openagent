@@ -14,7 +14,7 @@ This minimal divergence milestone establishes openagent as an independent projec
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Git Divergence** - Establish independent repository with clean history
-- [ ] **Phase 2: CLI and Branding** - Rename binary, update branding, document initiative
+- [x] **Phase 2: CLI and Branding** - Rename binary, update branding, document initiative
 
 ## Phase Details
 
@@ -52,14 +52,14 @@ Plans:
 Plans:
 
 - [x] 02-01-PLAN.md — Rename CLI binary and wrapper references to openagent
-- [ ] 02-02-PLAN.md — Update ASCII art branding and README docs for openagent
+- [x] 02-02-PLAN.md — Update ASCII art branding and README docs for openagent
 
 ## Progress
 
 **Execution Order:**
 Phases execute in numeric order: 1 → 2
 
-| Phase               | Plans Complete | Status      | Completed  |
-| ------------------- | -------------- | ----------- | ---------- |
-| 1. Git Divergence   | 1/1            | ✓ Complete  | 2026-01-31 |
-| 2. CLI and Branding | 1/2            | In progress | -          |
+| Phase               | Plans Complete | Status     | Completed  |
+| ------------------- | -------------- | ---------- | ---------- |
+| 1. Git Divergence   | 1/1            | ✓ Complete | 2026-01-31 |
+| 2. CLI and Branding | 2/2            | ✓ Complete | 2026-01-31 |
