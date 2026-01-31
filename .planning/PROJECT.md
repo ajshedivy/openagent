@@ -8,6 +8,17 @@ A terminal CLI client for Agno AgentOS. Built as a fork of opencode, openagent l
 
 Connect to AgentOS agents from the terminal with a great user experience — agent discovery, rich interaction, and multi-agent orchestration.
 
+## Current State
+
+**Version:** v1.0 Minimal Divergence (shipped 2026-01-31)
+
+Openagent is now an independent project with its own repository, CLI binary, and branding. The `openagent` command launches a terminal UI with the openagent wordmark. Full attribution to the original opencode project is preserved.
+
+**Codebase:**
+- 23 files modified from opencode fork
+- 1,615 lines added, 92 removed
+- Repository: github.com/ajshedivy/openagent
+
 ## Requirements
 
 ### Validated
@@ -23,13 +34,21 @@ Connect to AgentOS agents from the terminal with a great user experience — age
 - ✓ File tree navigation and context — existing
 - ✓ Permission system for tool execution — existing
 
+<!-- v1.0 Minimal Divergence -->
+
+- ✓ Git history squashed with opencode attribution — v1.0
+- ✓ Independent repository at github.com/ajshedivy/openagent — v1.0
+- ✓ CLI binary renamed to `openagent` — v1.0
+- ✓ package.json bin field registers `openagent` command — v1.0
+- ✓ Bin script references openagent binaries and messaging — v1.0
+- ✓ ASCII art banner displays "openagent" — v1.0
+- ✓ README explains openagent initiative — v1.0
+
 ### Active
 
-<!-- Current milestone: Project rename and repo divergence -->
+<!-- Next milestone: TBD — run /gsd:new-milestone to define -->
 
-- [ ] Rename project from "opencode" to "openagent"
-- [ ] Create new GitHub repository for openagent
-- [ ] Push initial commit marking divergence from opencode
+(No active requirements — run `/gsd:new-milestone` to start next milestone)
 
 ### Out of Scope
 
@@ -52,7 +71,13 @@ Connect to AgentOS agents from the terminal with a great user experience — age
 - Vercel AI SDK for model abstraction
 - Hono for HTTP framework
 
-**Future scope (not this milestone):**
+**Tech Debt (from v1.0):**
+- 14 files in build infrastructure reference old bin/opencode path
+- Platform binary packages (openagent-{platform}-{arch}) not yet created
+- Old branches retain 8,464-commit opencode history
+
+**Future scope:**
+- Full rebrand (package scope, directories, env vars) — v2.0
 - Teams integration
 - Workflows integration
 - Evals integration
@@ -70,9 +95,11 @@ Connect to AgentOS agents from the terminal with a great user experience — age
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Fork opencode rather than build from scratch | Leverage mature TUI infrastructure, session management, tool execution | — Pending |
-| Rename to "openagent" | Clear identity as AgentOS client, distinct from opencode | — Pending |
-| Focus on AgentOS API exclusively | Simplify architecture, align with AgentOS ecosystem | — Pending |
+| Fork opencode rather than build from scratch | Leverage mature TUI infrastructure, session management, tool execution | ✓ Good — v1.0 shipped same-day |
+| Rename to "openagent" | Clear identity as AgentOS client, distinct from opencode | ✓ Good — branding established |
+| Focus on AgentOS API exclusively | Simplify architecture, align with AgentOS ecosystem | — Pending (v2.0) |
+| Squash 8,464 commits into single initial commit | Clean divergence point, full attribution preserved | ✓ Good — clean history |
+| Defer full package rebrand to v2.0 | Minimal changes for v1.0, keep compatibility | ✓ Good — fast ship |
 
 ---
-*Last updated: 2026-01-31 after initialization*
+*Last updated: 2026-01-31 after v1.0 milestone*
