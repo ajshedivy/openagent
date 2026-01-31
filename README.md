@@ -33,7 +33,7 @@
   <a href="README.th.md">ไทย</a>
 </p>
 
-[![OpenCode Terminal UI](packages/web/src/assets/lander/screenshot.png)](https://opencode.ai)
+![alt text](image.png)
 
 ---
 
