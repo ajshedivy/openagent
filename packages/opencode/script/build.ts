@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import solidPlugin from "../node_modules/@opentui/solid/scripts/solid-plugin"
+import solidPlugin from "@opentui/solid/bun-plugin"
 import path from "path"
 import fs from "fs"
 import { $ } from "bun"
@@ -130,7 +130,13 @@ for (const item of targets) {
   console.log(`building ${name}`)
   await $`mkdir -p dist/${name}/bin`
 
-  const parserWorker = fs.realpathSync(path.resolve(dir, "./node_modules/@opentui/core/parser.worker.js"))
+  const base = Bun.resolveSync("@opentui/core", path.join(dir, "package.json"))
+  const root = path.dirname(base)
+  const meta = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"))
+  const entry = meta.exports?.["./parser.worker"]?.import ?? meta.exports?.["./parser.worker"]?.require
+  const fallback = path.resolve(root, "parser.worker.js")
+  const target = entry ? path.resolve(root, entry) : fallback
+  const parserWorker = fs.realpathSync(fs.existsSync(target) ? target : fallback)
   const workerPath = "./src/cli/cmd/tui/worker.ts"
 
   // Use platform-specific bunfs root path based on target OS
@@ -149,8 +155,8 @@ for (const item of targets) {
       autoloadTsconfig: true,
       autoloadPackageJson: true,
       target: name.replace(pkg.name, "bun") as any,
-      outfile: `dist/${name}/bin/opencode`,
-      execArgv: [`--user-agent=opencode/${Script.version}`, "--use-system-ca", "--"],
+      outfile: `dist/${name}/bin/openagent`,
+      execArgv: [`--user-agent=openagent/${Script.version}`, "--use-system-ca", "--"],
       windows: {},
     },
     entrypoints: ["./src/index.ts", parserWorker, workerPath],
