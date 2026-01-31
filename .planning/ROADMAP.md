@@ -51,7 +51,7 @@ Plans:
 
 Plans:
 
-- [ ] 02-01-PLAN.md — Rename CLI binary and wrapper references to openagent
+- [x] 02-01-PLAN.md — Rename CLI binary and wrapper references to openagent
 - [ ] 02-02-PLAN.md — Update ASCII art branding and README docs for openagent
 
 ## Progress
@@ -62,4 +62,4 @@ Phases execute in numeric order: 1 → 2
 | Phase               | Plans Complete | Status      | Completed  |
 | ------------------- | -------------- | ----------- | ---------- |
 | 1. Git Divergence   | 1/1            | ✓ Complete  | 2026-01-31 |
-| 2. CLI and Branding | 0/TBD          | Not started | -          |
+| 2. CLI and Branding | 1/2            | In progress | -          |
