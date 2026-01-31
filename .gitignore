@@ -28,3 +28,4 @@ logs/
 *.bun-build
 
 .claude/
+__pycache__/
