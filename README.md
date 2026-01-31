@@ -37,6 +37,10 @@
 
 ---
 
+### Openagent initiative
+
+Openagent is a focused fork of opencode that targets the AgentOS API exclusively. The goal is a terminal-first client for discovering, connecting to, and working with AgentOS agents while keeping the TUI experience central.
+
 ### Installation
 
 ```bash
@@ -52,6 +56,9 @@ brew install opencode              # macOS and Linux (official brew formula, upd
 paru -S opencode-bin               # Arch Linux
 mise use -g opencode               # Any OS
 nix run nixpkgs#opencode           # or github:anomalyco/opencode for latest dev branch
+
+# Run
+openagent
 ```
 
 > [!TIP]
