@@ -9,8 +9,8 @@ Requirements for initial divergence milestone. Minimal changes to establish open
 
 ### Git Divergence
 
-- [ ] **GIT-01**: Squash git history into single initial commit with opencode attribution
-- [ ] **GIT-02**: Push squashed history to new openagent repository (https://github.com/ajshedivy/openagent.git)
+- [x] **GIT-01**: Squash git history into single initial commit with opencode attribution ✓
+- [x] **GIT-02**: Push squashed history to new openagent repository (https://github.com/ajshedivy/openagent.git) ✓
 
 ### CLI Binary
 
@@ -62,8 +62,8 @@ Deferred to future milestones. Tracked but not in current roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| GIT-01 | Phase 1 | Pending |
-| GIT-02 | Phase 1 | Pending |
+| GIT-01 | Phase 1 | Complete |
+| GIT-02 | Phase 1 | Complete |
 | CLI-01 | Phase 2 | Pending |
 | CLI-02 | Phase 2 | Pending |
 | CLI-03 | Phase 2 | Pending |
@@ -78,4 +78,4 @@ Deferred to future milestones. Tracked but not in current roadmap.
 
 ---
 *Requirements defined: 2026-01-31*
-*Last updated: 2026-01-31 after initial definition*
+*Last updated: 2026-01-31 — GIT-01, GIT-02 completed*
