@@ -27,9 +27,37 @@
 
 ---
 
-### Openagent initiative
+## Mission
 
-Openagent is a focused fork of opencode that targets the AgentOS API exclusively. The goal is a terminal-first client for discovering, connecting to, and working with AgentOS agents while keeping the TUI experience central.
+**Connect to AI agents from the terminal with a great user experience.**
+
+Openagent is a focused fork of [opencode](https://github.com/sst/opencode) that targets the [AgentOS](https://docs.agno.com/agent-os/introduction) API exclusively. We believe the terminal is the natural home for developers working with AI agents, and we're building the best client to make that experience seamless.
+
+## What We're Building
+
+Openagent is a terminal-first client for the [Agno AgentOS](https://docs.agno.com/agent-os/introduction) ecosystem:
+
+- **Discover** — Browse and connect to available AgentOS agents
+- **Interact** — Chat with agents using a polished TUI experience
+- **Integrate** — Work with agents that have tools, memory, and MCP capabilities
+- **Develop** — Test and debug your own AgentOS agents locally
+
+## Project Scope
+
+| In Scope | Out of Scope (for now) |
+|----------|------------------------|
+| AgentOS API integration | Other AI provider APIs |
+| Terminal UI (TUI) client | Web or desktop-first experiences |
+| Local agent development | Cloud deployment |
+| MCP server support | Enterprise features |
+
+We're keeping the scope focused to deliver a great experience for the AgentOS ecosystem. The upstream opencode project handles multi-provider support — openagent is purpose-built for AgentOS.
+
+## Learn More
+
+- [AgentOS Introduction](https://docs.agno.com/agent-os/introduction) — What is AgentOS?
+- [Agno Documentation](https://docs.agno.com) — Full Agno docs
+- [Get Started with OpenAgent](OPENAGENT.md) — Run the demo locally
 
 ### Installation
 
