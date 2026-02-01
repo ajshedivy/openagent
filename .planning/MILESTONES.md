@@ -1,5 +1,33 @@
 # Project Milestones: openagent
 
+## v1.1 AgentOS Hub (Shipped: 2026-02-01)
+
+**Delivered:** Central `/agno` hub for viewing and managing AgentOS agents with tabbed UI, agent list with status indicators, detail view with metadata display, and clean separation from `/models`.
+
+**Phases completed:** 3-6 (5 plans total)
+
+**Key accomplishments:**
+
+- Created `/agno` slash command with tabbed UI (Agents | Teams | Workflows)
+- Built agent list view with connected status indicator and keyboard navigation
+- Implemented agent detail view with full metadata (name, model, tools, health)
+- Established quick-connect workflow (Enter from list) for streamlined UX
+- Separated AgentOS from `/models` dialog — `/agno` now exclusive interface
+- Added Teams/Workflows tab placeholders for future milestones
+
+**Stats:**
+
+- 35 files created/modified
+- 4,561 lines added, 127 removed
+- 4 phases, 5 plans, 19 requirements satisfied
+- Same-day completion (2026-02-01)
+
+**Git range:** `6f70defff` → `bd567794c`
+
+**What's next:** v1.2 Teams & Workflows — full implementation of Teams and Workflows tabs
+
+---
+
 ## v1.0 Minimal Divergence (Shipped: 2026-01-31)
 
 **Delivered:** Independent openagent repository with renamed CLI binary and distinct branding, forked from opencode with full attribution.

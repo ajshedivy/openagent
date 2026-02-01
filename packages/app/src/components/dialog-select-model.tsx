@@ -27,6 +27,7 @@ const ModelList: Component<{
   const models = createMemo(() =>
     local.model
       .list()
+      .filter((m) => m.provider.id !== "agentos") // Filter out AgentOS
       .filter((m) => local.model.visible({ modelID: m.id, providerID: m.provider.id }))
       .filter((m) => (props.provider ? m.provider.id === props.provider : true)),
   )

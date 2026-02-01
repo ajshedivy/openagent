@@ -17,6 +17,7 @@ import { DialogThemeList } from "@tui/component/dialog-theme-list"
 import { DialogHelp } from "./ui/dialog-help"
 import { CommandProvider, useCommandDialog } from "@tui/component/dialog-command"
 import { DialogAgent } from "@tui/component/dialog-agent"
+import { DialogAgno } from "@tui/component/dialog-agno"
 import { DialogSessionList } from "@tui/component/dialog-session-list"
 import { KeybindProvider } from "@tui/context/keybind"
 import { ThemeProvider, useTheme } from "@tui/context/theme"
@@ -380,6 +381,18 @@ function App() {
       },
       onSelect: () => {
         dialog.replace(() => <DialogAgent />)
+      },
+    },
+    {
+      title: "AgentOS Hub",
+      value: "agno.hub",
+      category: "Agent",
+      slash: {
+        name: "agno",
+        aliases: ["hub", "agentos"],
+      },
+      onSelect: () => {
+        dialog.replace(() => <DialogAgno />)
       },
     },
     {

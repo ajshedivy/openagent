@@ -10,14 +10,24 @@ Connect to AgentOS agents from the terminal with a great user experience — age
 
 ## Current State
 
-**Version:** v1.0 Minimal Divergence (shipped 2026-01-31)
+**Version:** v1.1 AgentOS Hub (shipped 2026-02-01)
 
-Openagent is now an independent project with its own repository, CLI binary, and branding. The `openagent` command launches a terminal UI with the openagent wordmark. Full attribution to the original opencode project is preserved.
+Openagent now features the `/agno` slash command as a central hub for viewing and managing AgentOS agents. The hub provides a tabbed interface (Agents | Teams | Workflows) with full agent list display, status indicators, detail view with metadata, and quick-connect functionality. AgentOS agents are now exclusively accessed via `/agno` while `/models` shows only external providers.
 
 **Codebase:**
-- 23 files modified from opencode fork
-- 1,615 lines added, 92 removed
+- 35+ files modified
+- 253,293 lines TypeScript total
 - Repository: github.com/ajshedivy/openagent
+
+## Next Milestone: v1.2 Teams & Workflows
+
+**Goal:** Implement full Teams and Workflows functionality in the `/agno` hub.
+
+**Target features:**
+- Teams list with member agents
+- Team detail view and connect
+- Workflows list with steps/stages
+- Workflow execution from hub
 
 ## Requirements
 
@@ -44,11 +54,26 @@ Openagent is now an independent project with its own repository, CLI binary, and
 - ✓ ASCII art banner displays "openagent" — v1.0
 - ✓ README explains openagent initiative — v1.0
 
+<!-- v1.1 AgentOS Hub -->
+
+- ✓ `/agno` slash command registered in TUI — v1.1
+- ✓ Tabbed dialog UI (Agents | Teams | Workflows) — v1.1
+- ✓ Agent list with status indicator and keyboard navigation — v1.1
+- ✓ Agent detail view (name, model, tools, health) — v1.1
+- ✓ Quick-connect from list (Enter key) — v1.1
+- ✓ AgentOS separated from /models dialog — v1.1
+- ✓ Teams/Workflows placeholders ("Coming soon") — v1.1
+
 ### Active
 
-<!-- Next milestone: TBD — run /gsd:new-milestone to define -->
+<!-- v1.2 Teams & Workflows -->
 
-(No active requirements — run `/gsd:new-milestone` to start next milestone)
+- [ ] Teams list displays all teams from AgentOS API
+- [ ] Team detail view with member agents
+- [ ] Connect to team for multi-agent orchestration
+- [ ] Workflows list displays all workflows from AgentOS API
+- [ ] Workflow detail view with steps/stages
+- [ ] Execute workflow from hub
 
 ### Out of Scope
 
@@ -102,4 +127,4 @@ Openagent is now an independent project with its own repository, CLI binary, and
 | Defer full package rebrand to v2.0 | Minimal changes for v1.0, keep compatibility | ✓ Good — fast ship |
 
 ---
-*Last updated: 2026-01-31 after v1.0 milestone*
+*Last updated: 2026-02-01 after v1.1 milestone completed*

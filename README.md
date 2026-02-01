@@ -1,140 +1,133 @@
 <h1 align="center">openagent</h1>
 <p align="center">The open source <a href="https://github.com/agno-agi/agno">AgentOS</a> client.</p>
 <p align="center">
-  <a href="OPENAGENT.md"><strong>Get Started with AgentOS →</strong></a>
+  <a href="OPENAGENT.md"><strong>Get Started →</strong></a>
 </p>
 
 ---
 
-![alt text](image.png)
+![openagent terminal interface](image.png)
 
 ## Mission
 
-**Connect to AI agents from the terminal with a great user experience.**
+**Connect to AgentOS agents from the terminal.**
 
-Openagent is a focused fork of [opencode](https://github.com/sst/opencode) that targets the [AgentOS](https://docs.agno.com/agent-os/introduction) API exclusively. We believe the terminal is the natural home for developers working with AI agents, and we're building the best client to make that experience seamless.
+Openagent is a terminal-first client for [AgentOS](https://docs.agno.com/agent-os/introduction). Whether you're developing and testing agents locally or connecting to production AgentOS deployments, openagent provides a polished TUI for discovering, chatting with, and managing your AI agents.
 
-## What We're Building
+## What is AgentOS?
 
-Openagent is a terminal-first client for the [Agno AgentOS](https://docs.agno.com/agent-os/introduction) ecosystem:
+[AgentOS](https://docs.agno.com/agent-os/introduction) is the runtime and control plane for multi-agent systems. It transforms your agents into production-ready APIs with:
 
-- **Discover** — Browse and connect to available AgentOS agents
-- **Interact** — Chat with agents using a polished TUI experience
-- **Integrate** — Work with agents that have tools, memory, and MCP capabilities
-- **Develop** — Test and debug your own AgentOS agents locally
+- **50+ API endpoints** with SSE streaming out of the box
+- **Data sovereignty** — sessions, memory, and traces stored in your database
+- **Enterprise security** — JWT-based RBAC with hierarchical scopes
+- **Built-in observability** — integrated tracing with no vendor lock-in
+- **Human-in-the-loop** — guardrails and confirmation workflows
 
-## Project Scope
+```python
+from agno.os import AgentOS
+from agno.agent import Agent
+from agno.db.sqlite import SqliteDb
+from agno.models.anthropic import Claude
 
-| In Scope | Out of Scope (for now) |
-|----------|------------------------|
-| AgentOS API integration | Other AI provider APIs |
-| Terminal UI (TUI) client | Web or desktop-first experiences |
-| Local agent development | Cloud deployment |
-| MCP server support | Enterprise features |
+agent = Agent(
+    name="Agno Agent",
+    model=Claude(id="claude-sonnet-4-5"),
+    db=SqliteDb(db_file="agno.db"),
+    add_history_to_context=True,
+    markdown=True,
+)
 
-We're keeping the scope focused to deliver a great experience for the AgentOS ecosystem. The upstream opencode project handles multi-provider support — openagent is purpose-built for AgentOS.
+agent_os = AgentOS(agents=[agent])
+app = agent_os.get_app()
 
-## Learn More
+if __name__ == "__main__":
+    agent_os.serve(app="agno_agent:app", reload=True)
+```
 
+AgentOS handles the infrastructure so you can focus on building agents. Learn more at [docs.agno.com](https://docs.agno.com).
+
+## Features
+
+Openagent connects you to the AgentOS ecosystem:
+
+- **AgentOS Hub** — Browse and connect to available agents via `/agno` command
+- **Agent Chat** — Interact with agents using a polished terminal interface
+- **Tool Confirmation** — Review and approve agent tool calls before execution
+- **Hot Reload** — Press `Ctrl+R` to refresh agents after code changes
+- **Session Persistence** — Continue conversations across sessions
+
+<p align="center">
+  <img src="docs/agentos-hub.png" alt="AgentOS Hub - Browse available agents" width="100%">
+</p>
+<p align="center"><em>AgentOS Hub — Browse and connect to available agents</em></p>
+
+<p align="center">
+  <img src="docs/agent-details.png" alt="Agent Details - View configuration and connect" width="100%">
+</p>
+<p align="center"><em>Agent Details — View model and tool configuration</em></p>
+
+## Quick Start
+
+### Prerequisites
+
+- [Bun 1.3+](https://bun.sh)
+- An AgentOS server running (see [OPENAGENT.md](OPENAGENT.md) for setup)
+
+### Install from Source
+
+```bash
+git clone https://github.com/ajshedivy/openagent.git
+cd openagent
+bun install
+```
+
+### Configure
+
+Create `opencode.json` in your project root:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "agentos": {
+      "name": "AgentOS",
+      "options": {
+        "baseURL": "http://localhost:7777"
+      }
+    }
+  }
+}
+```
+
+### Run
+
+```bash
+bun dev
+```
+
+Use `/agno` to open the AgentOS Hub and connect to your agents.
+
+> **Note:** Installation scripts and npm publishing coming soon.
+
+## Documentation
+
+- [Get Started with OpenAgent](OPENAGENT.md) — Full setup guide with example agent
+- [AgentOS Documentation](https://docs.agno.com) — Build agents with Agno
 - [AgentOS Introduction](https://docs.agno.com/agent-os/introduction) — What is AgentOS?
-- [Agno Documentation](https://docs.agno.com) — Full Agno docs
-- [Get Started with OpenAgent](OPENAGENT.md) — Run the demo locally
 
-### Installation
+## Contributing
 
-```bash
-# YOLO
-curl -fsSL https://opencode.ai/install | bash
-
-# Package managers
-npm i -g opencode-ai@latest        # or bun/pnpm/yarn
-scoop install opencode             # Windows
-choco install opencode             # Windows
-brew install anomalyco/tap/opencode # macOS and Linux (recommended, always up to date)
-brew install opencode              # macOS and Linux (official brew formula, updated less)
-paru -S opencode-bin               # Arch Linux
-mise use -g opencode               # Any OS
-nix run nixpkgs#opencode           # or github:anomalyco/opencode for latest dev branch
-
-# Run
-openagent
-```
-
-> [!TIP]
-> Remove versions older than 0.1.x before installing.
-
-### Desktop App (BETA)
-
-OpenCode is also available as a desktop application. Download directly from the [releases page](https://github.com/anomalyco/opencode/releases) or [opencode.ai/download](https://opencode.ai/download).
-
-| Platform              | Download                              |
-| --------------------- | ------------------------------------- |
-| macOS (Apple Silicon) | `opencode-desktop-darwin-aarch64.dmg` |
-| macOS (Intel)         | `opencode-desktop-darwin-x64.dmg`     |
-| Windows               | `opencode-desktop-windows-x64.exe`    |
-| Linux                 | `.deb`, `.rpm`, or AppImage           |
-
-```bash
-# macOS (Homebrew)
-brew install --cask opencode-desktop
-# Windows (Scoop)
-scoop bucket add extras; scoop install extras/opencode-desktop
-```
-
-#### Installation Directory
-
-The install script respects the following priority order for the installation path:
-
-1. `$OPENCODE_INSTALL_DIR` - Custom installation directory
-2. `$XDG_BIN_DIR` - XDG Base Directory Specification compliant path
-3. `$HOME/bin` - Standard user binary directory (if exists or can be created)
-4. `$HOME/.opencode/bin` - Default fallback
-
-```bash
-# Examples
-OPENCODE_INSTALL_DIR=/usr/local/bin curl -fsSL https://opencode.ai/install | bash
-XDG_BIN_DIR=$HOME/.local/bin curl -fsSL https://opencode.ai/install | bash
-```
-
-### Agents
-
-OpenCode includes two built-in agents you can switch between with the `Tab` key.
-
-- **build** - Default, full access agent for development work
-- **plan** - Read-only agent for analysis and code exploration
-  - Denies file edits by default
-  - Asks permission before running bash commands
-  - Ideal for exploring unfamiliar codebases or planning changes
-
-Also, included is a **general** subagent for complex searches and multistep tasks.
-This is used internally and can be invoked using `@general` in messages.
-
-Learn more about [agents](https://opencode.ai/docs/agents).
-
-### Documentation
-
-For more info on how to configure OpenCode [**head over to our docs**](https://opencode.ai/docs).
-
-### Contributing
-
-If you're interested in contributing to OpenCode, please read our [contributing docs](./CONTRIBUTING.md) before submitting a pull request.
-
-### Building on OpenCode
-
-If you are working on a project that's related to OpenCode and is using "opencode" as a part of its name; for example, "opencode-dashboard" or "opencode-mobile", please add a note to your README to clarify that it is not built by the OpenCode team and is not affiliated with us in any way.
-
-### FAQ
-
-#### How is this different from Claude Code?
-
-It's very similar to Claude Code in terms of capability. Here are the key differences:
-
-- 100% open source
-- Not coupled to any provider. Although we recommend the models we provide through [OpenCode Zen](https://opencode.ai/zen); OpenCode can be used with Claude, OpenAI, Google or even local models. As models evolve the gaps between them will close and pricing will drop so being provider-agnostic is important.
-- Out of the box LSP support
-- A focus on TUI. OpenCode is built by neovim users and the creators of [terminal.shop](https://terminal.shop); we are going to push the limits of what's possible in the terminal.
-- A client/server architecture. This for example can allow OpenCode to run on your computer, while you can drive it remotely from a mobile app. Meaning that the TUI frontend is just one of the possible clients.
+Interested in contributing? See our [contributing guide](./CONTRIBUTING.md).
 
 ---
 
-**Join our community** [Discord](https://discord.gg/opencode) | [X.com](https://x.com/opencode)
+## Attribution
+
+Openagent is built on [opencode](https://github.com/sst/opencode), an open source AI-powered terminal tool. We forked opencode to create a focused client for the AgentOS ecosystem while preserving all the great TUI infrastructure the opencode team built.
+
+**Thank you to the opencode team for making this possible.**
+
+- [opencode repository](https://github.com/sst/opencode)
+- [opencode documentation](https://opencode.ai/docs)
+- [opencode Discord](https://discord.gg/opencode)
