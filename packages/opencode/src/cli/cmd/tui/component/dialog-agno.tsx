@@ -325,13 +325,25 @@ function AgentDetail(props: { agent: { id: string; name: string }; onBack: () =>
     dialog.clear() // Close dialog after connecting
   }
 
+  function handleDisconnect() {
+    // Clear the current model selection to disconnect from agent
+    local.model.set(undefined)
+    dialog.clear() // Close dialog after disconnecting
+  }
+
   useKeyboard((evt) => {
-    if (evt.name === "escape") {
+    // Ctrl+B goes back to agent list
+    if (evt.ctrl && evt.name === "b") {
       props.onBack()
       evt.preventDefault()
     }
-    if (evt.name === "return" && !isConnected()) {
-      handleConnect()
+    // Enter connects to available agents or disconnects from connected agents
+    if (evt.name === "return") {
+      if (isConnected()) {
+        handleDisconnect()
+      } else {
+        handleConnect()
+      }
       evt.preventDefault()
     }
   })
@@ -374,13 +386,20 @@ function AgentDetail(props: { agent: { id: string; name: string }; onBack: () =>
 
       {/* Actions hint */}
       <box flexDirection="row" gap={3} paddingTop={1}>
-        <Show when={!isConnected()}>
+        <Show
+          when={!isConnected()}
+          fallback={
+            <text fg={theme.textMuted}>
+              <span style={{ fg: theme.text }}>Enter</span> disconnect
+            </text>
+          }
+        >
           <text fg={theme.textMuted}>
             <span style={{ fg: theme.text }}>Enter</span> connect
           </text>
         </Show>
         <text fg={theme.textMuted}>
-          <span style={{ fg: theme.text }}>Esc</span> back
+          <span style={{ fg: theme.text }}>Ctrl+B</span> back
         </text>
       </box>
     </box>
