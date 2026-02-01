@@ -117,6 +117,9 @@ agent_os = AgentOS(agents=[web_agent], enable_mcp_server=True)
 app = agent_os.get_app()
 ```
 
+Connect to the News Agent via the `/models` commansd in OpenAgent:
+![alt text](docs/image-1.png)
+
 Try asking the agent: "What are the top 5 stories on Hacker News today?"
 
 ## Configuration Options
