@@ -49,6 +49,7 @@ export function DialogModel(props: { providerID?: string }) {
       ? favorites.flatMap((item) => {
           const provider = sync.data.provider.find((x) => x.id === item.providerID)
           if (!provider) return []
+          if (provider.id === "agentos") return [] // Skip AgentOS favorites
           const model = provider.models[item.modelID]
           if (!model) return []
           return [
@@ -82,6 +83,7 @@ export function DialogModel(props: { providerID?: string }) {
       ? recentList.flatMap((item) => {
           const provider = sync.data.provider.find((x) => x.id === item.providerID)
           if (!provider) return []
+          if (provider.id === "agentos") return [] // Skip AgentOS recents
           const model = provider.models[item.modelID]
           if (!model) return []
           return [
@@ -113,6 +115,7 @@ export function DialogModel(props: { providerID?: string }) {
 
     const providerOptions = pipe(
       sync.data.provider,
+      filter((provider) => provider.id !== "agentos"), // Filter out AgentOS
       sortBy(
         (provider) => provider.id !== "opencode",
         (provider) => provider.name,
