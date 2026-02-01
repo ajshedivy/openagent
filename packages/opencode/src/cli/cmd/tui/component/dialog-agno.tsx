@@ -261,29 +261,35 @@ export function DialogAgno() {
         </Show>
       </box>
 
-      {/* Keyboard hints at bottom */}
-      <box paddingLeft={4} paddingRight={4} flexDirection="row" gap={3} paddingTop={1}>
+      {/* Keyboard hints at bottom - anchored in fixed positions */}
+      <box paddingLeft={4} paddingRight={4} flexDirection="row" gap={2} paddingTop={1}>
         <Show when={store.activeTab === "agents" && !store.selectedAgent}>
-          <text fg={theme.textMuted}>
-            <span style={{ fg: theme.text }}>Enter</span> connect
+          <text>
+            <span style={{ fg: theme.text }}>Connect</span>{" "}
+            <span style={{ fg: theme.textMuted }}>enter</span>
           </text>
-          <text fg={theme.textMuted}>
-            <span style={{ fg: theme.text }}>Ctrl+L</span> details
+          <text>
+            <span style={{ fg: theme.text }}>Details</span>{" "}
+            <span style={{ fg: theme.textMuted }}>ctrl+l</span>
           </text>
-          <text fg={theme.textMuted}>
-            <span style={{ fg: theme.text }}>Ctrl+R</span> refresh
+          <text>
+            <span style={{ fg: theme.text }}>Refresh</span>{" "}
+            <span style={{ fg: theme.textMuted }}>ctrl+r</span>
           </text>
         </Show>
         <Show when={store.activeTab === "agents" && store.selectedAgent}>
-          <text fg={theme.textMuted}>
-            <span style={{ fg: theme.text }}>Enter</span> connect
+          <text>
+            <span style={{ fg: theme.text }}>Connect</span>{" "}
+            <span style={{ fg: theme.textMuted }}>enter</span>
           </text>
-          <text fg={theme.textMuted}>
-            <span style={{ fg: theme.text }}>Ctrl+B</span> back
+          <text>
+            <span style={{ fg: theme.text }}>Back</span>{" "}
+            <span style={{ fg: theme.textMuted }}>ctrl+b</span>
           </text>
         </Show>
-        <text fg={theme.textMuted}>
-          <span style={{ fg: theme.text }}>Tab</span> switch section
+        <text>
+          <span style={{ fg: theme.text }}>Switch section</span>{" "}
+          <span style={{ fg: theme.textMuted }}>tab</span>
         </text>
       </box>
     </box>
