@@ -384,6 +384,18 @@ function App() {
       },
     },
     {
+      title: "AgentOS Hub",
+      value: "agno.hub",
+      category: "Agent",
+      slash: {
+        name: "agno",
+        aliases: ["hub", "agentos"],
+      },
+      onSelect: () => {
+        dialog.replace(() => <DialogAgno />)
+      },
+    },
+    {
       title: "Toggle MCPs",
       value: "mcp.list",
       category: "Agent",
