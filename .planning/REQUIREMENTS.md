@@ -31,12 +31,12 @@ Requirements for the AgentOS Hub milestone. Each maps to roadmap phases.
 - [x] **DETL-06**: "Back" action returns to agent list
 - [x] **DETL-07**: Keyboard navigation (Enter to connect, Ctrl+B to go back)
 
-### Placeholder Sections
+### Model Provider Separation
 
-- [ ] **PLCH-01**: Teams tab visible in tab bar
-- [ ] **PLCH-02**: Teams section shows "Coming soon" message when selected
-- [ ] **PLCH-03**: Workflows tab visible in tab bar
-- [ ] **PLCH-04**: Workflows section shows "Coming soon" message when selected
+- [x] **SEP-01**: Remove AgentOS provider from /models dialog
+- [x] **SEP-02**: /models shows only external model providers (Anthropic, OpenAI, etc.)
+- [x] **SEP-03**: /agno is the exclusive interface for AgentOS agents
+- [x] **SEP-04**: Placeholders for Teams and Workflows tabs show "Coming soon"
 
 ## Future Requirements
 
@@ -100,10 +100,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DETL-05 | Phase 5 | Complete |
 | DETL-06 | Phase 5 | Complete |
 | DETL-07 | Phase 5 | Complete |
-| PLCH-01 | Phase 6 | Pending |
-| PLCH-02 | Phase 6 | Pending |
-| PLCH-03 | Phase 6 | Pending |
-| PLCH-04 | Phase 6 | Pending |
+| SEP-01 | Phase 6 | Complete |
+| SEP-02 | Phase 6 | Complete |
+| SEP-03 | Phase 6 | Complete |
+| SEP-04 | Phase 6 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 19 total
@@ -112,4 +112,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-01*
-*Last updated: 2026-02-01 after Phase 5 completion*
+*Last updated: 2026-02-01 after Phase 6 completion*

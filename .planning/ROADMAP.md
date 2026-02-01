@@ -100,7 +100,7 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 06-01-PLAN.md — Filter AgentOS from /models dialog in web app and TUI
+- [x] 06-01-PLAN.md — Filter AgentOS from /models dialog in web app and TUI
 
 **Requirements:**
 - SEP-01: Remove AgentOS provider from /models dialog
@@ -123,7 +123,7 @@ Plans:
 | 3 | UI Infrastructure | ✓ Complete | 2 | 2 |
 | 4 | Agent List View | ✓ Complete | 1 | 1 |
 | 5 | Agent Detail View | ✓ Complete | 1 | 1 |
-| 6 | Model Provider Separation | Planned | 1 | 0 |
+| 6 | Model Provider Separation | ✓ Complete | 1 | 1 |
 
 **Coverage:** 19/19 requirements mapped
 
