@@ -16,20 +16,20 @@ Requirements for the AgentOS Hub milestone. Each maps to roadmap phases.
 
 ### Agent List
 
-- [ ] **AGNT-01**: Agent list displays all discovered agents from AgentOS API
-- [ ] **AGNT-02**: Each agent row shows name and status indicator (connected/available)
-- [ ] **AGNT-03**: Currently connected agent is visually highlighted
-- [ ] **AGNT-04**: Selecting an agent opens detail view
+- [x] **AGNT-01**: Agent list displays all discovered agents from AgentOS API
+- [x] **AGNT-02**: Each agent row shows name and status indicator (connected/available)
+- [x] **AGNT-03**: Currently connected agent is visually highlighted
+- [x] **AGNT-04**: Selecting an agent opens detail view
 
 ### Agent Detail
 
-- [ ] **DETL-01**: Detail panel displays agent name prominently
-- [ ] **DETL-02**: Detail panel shows model identifier
-- [ ] **DETL-03**: Detail panel shows tool count and tool names
-- [ ] **DETL-04**: Detail panel shows health/connection status
-- [ ] **DETL-05**: "Connect" action switches active agent
-- [ ] **DETL-06**: "Back" action returns to agent list
-- [ ] **DETL-07**: Keyboard navigation (Enter to connect, Escape to go back)
+- [x] **DETL-01**: Detail panel displays agent name prominently
+- [x] **DETL-02**: Detail panel shows model identifier
+- [x] **DETL-03**: Detail panel shows tool count and tool names
+- [x] **DETL-04**: Detail panel shows health/connection status
+- [x] **DETL-05**: "Connect" action switches active agent
+- [x] **DETL-06**: "Back" action returns to agent list
+- [x] **DETL-07**: Keyboard navigation (Enter to connect, Ctrl+B to go back)
 
 ### Placeholder Sections
 
@@ -89,17 +89,17 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UI-02 | Phase 3 | Complete |
 | UI-03 | Phase 3 | Complete |
 | UI-04 | Phase 3 | Complete |
-| AGNT-01 | Phase 4 | Pending |
-| AGNT-02 | Phase 4 | Pending |
-| AGNT-03 | Phase 4 | Pending |
-| AGNT-04 | Phase 4 | Pending |
-| DETL-01 | Phase 5 | Pending |
-| DETL-02 | Phase 5 | Pending |
-| DETL-03 | Phase 5 | Pending |
-| DETL-04 | Phase 5 | Pending |
-| DETL-05 | Phase 5 | Pending |
-| DETL-06 | Phase 5 | Pending |
-| DETL-07 | Phase 5 | Pending |
+| AGNT-01 | Phase 4 | Complete |
+| AGNT-02 | Phase 4 | Complete |
+| AGNT-03 | Phase 4 | Complete |
+| AGNT-04 | Phase 4 | Complete |
+| DETL-01 | Phase 5 | Complete |
+| DETL-02 | Phase 5 | Complete |
+| DETL-03 | Phase 5 | Complete |
+| DETL-04 | Phase 5 | Complete |
+| DETL-05 | Phase 5 | Complete |
+| DETL-06 | Phase 5 | Complete |
+| DETL-07 | Phase 5 | Complete |
 | PLCH-01 | Phase 6 | Pending |
 | PLCH-02 | Phase 6 | Pending |
 | PLCH-03 | Phase 6 | Pending |
@@ -112,4 +112,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-01*
-*Last updated: 2026-02-01 after Phase 3 completion*
+*Last updated: 2026-02-01 after Phase 5 completion*
