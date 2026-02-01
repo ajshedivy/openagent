@@ -17,7 +17,7 @@ Requirements for the AgentOS Hub milestone. Each maps to roadmap phases.
 ### Agent List
 
 - [ ] **AGNT-01**: Agent list displays all discovered agents from AgentOS API
-- [ ] **AGNT-02**: Each agent row shows name and status indicator (● connected / ○ available)
+- [ ] **AGNT-02**: Each agent row shows name and status indicator (connected/available)
 - [ ] **AGNT-03**: Currently connected agent is visually highlighted
 - [ ] **AGNT-04**: Selecting an agent opens detail view
 
@@ -85,31 +85,31 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| UI-01 | TBD | Pending |
-| UI-02 | TBD | Pending |
-| UI-03 | TBD | Pending |
-| UI-04 | TBD | Pending |
-| AGNT-01 | TBD | Pending |
-| AGNT-02 | TBD | Pending |
-| AGNT-03 | TBD | Pending |
-| AGNT-04 | TBD | Pending |
-| DETL-01 | TBD | Pending |
-| DETL-02 | TBD | Pending |
-| DETL-03 | TBD | Pending |
-| DETL-04 | TBD | Pending |
-| DETL-05 | TBD | Pending |
-| DETL-06 | TBD | Pending |
-| DETL-07 | TBD | Pending |
-| PLCH-01 | TBD | Pending |
-| PLCH-02 | TBD | Pending |
-| PLCH-03 | TBD | Pending |
-| PLCH-04 | TBD | Pending |
+| UI-01 | Phase 3 | Pending |
+| UI-02 | Phase 3 | Pending |
+| UI-03 | Phase 3 | Pending |
+| UI-04 | Phase 3 | Pending |
+| AGNT-01 | Phase 4 | Pending |
+| AGNT-02 | Phase 4 | Pending |
+| AGNT-03 | Phase 4 | Pending |
+| AGNT-04 | Phase 4 | Pending |
+| DETL-01 | Phase 5 | Pending |
+| DETL-02 | Phase 5 | Pending |
+| DETL-03 | Phase 5 | Pending |
+| DETL-04 | Phase 5 | Pending |
+| DETL-05 | Phase 5 | Pending |
+| DETL-06 | Phase 5 | Pending |
+| DETL-07 | Phase 5 | Pending |
+| PLCH-01 | Phase 6 | Pending |
+| PLCH-02 | Phase 6 | Pending |
+| PLCH-03 | Phase 6 | Pending |
+| PLCH-04 | Phase 6 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 19 total
-- Mapped to phases: 0
-- Unmapped: 19 ⚠️
+- Mapped to phases: 19
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-01*
-*Last updated: 2026-02-01 after initial definition*
+*Last updated: 2026-02-01 after roadmap creation*
