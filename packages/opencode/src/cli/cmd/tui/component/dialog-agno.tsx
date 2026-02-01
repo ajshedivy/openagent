@@ -108,7 +108,18 @@ export function DialogAgno() {
         scrollToSelected()
         evt.preventDefault()
       }
+      // Enter = quick connect to selected agent
       if (evt.name === "return") {
+        const agentList = filteredAgents()
+        const selectedAgent = agentList[store.selectedIndex]
+        if (selectedAgent) {
+          local.model.set({ providerID: "agentos", modelID: selectedAgent.id }, { recent: true })
+          dialog.clear()
+          evt.preventDefault()
+        }
+      }
+      // Ctrl+L = view details (read-only)
+      if (evt.ctrl && evt.name === "l") {
         const agentList = filteredAgents()
         const selectedAgent = agentList[store.selectedIndex]
         if (selectedAgent) {
@@ -216,9 +227,11 @@ export function DialogAgno() {
                       id={String(index())}
                       agent={agent}
                       active={index() === store.selectedIndex}
-                      onSelect={() =>
-                        setStore("selectedAgent", { id: agent.id, name: agent.name })
-                      }
+                      onSelect={() => {
+                        // Click = quick connect (same as Enter)
+                        local.model.set({ providerID: "agentos", modelID: agent.id }, { recent: true })
+                        dialog.clear()
+                      }}
                       onHover={() => setStore("selectedIndex", index())}
                     />
                   )}
@@ -237,11 +250,16 @@ export function DialogAgno() {
 
       {/* Keyboard hints at bottom */}
       <box paddingLeft={4} paddingRight={4} flexDirection="row" gap={3} paddingTop={1}>
+        <Show when={store.activeTab === "agents" && !store.selectedAgent}>
+          <text fg={theme.textMuted}>
+            <span style={{ fg: theme.text }}>Enter</span> connect
+          </text>
+          <text fg={theme.textMuted}>
+            <span style={{ fg: theme.text }}>Ctrl+L</span> details
+          </text>
+        </Show>
         <text fg={theme.textMuted}>
           <span style={{ fg: theme.text }}>Tab</span> switch section
-        </text>
-        <text fg={theme.textMuted}>
-          <span style={{ fg: theme.text }}>Enter</span> select
         </text>
         <text fg={theme.textMuted}>
           <span style={{ fg: theme.text }}>Esc</span> close
@@ -296,7 +314,6 @@ function AgentDetail(props: { agent: { id: string; name: string }; onBack: () =>
   const { theme } = useTheme()
   const sync = useSync()
   const local = useLocal()
-  const dialog = useDialog()
 
   // Get full model data from provider
   const model = createMemo(() => {
@@ -320,30 +337,10 @@ function AgentDetail(props: { agent: { id: string; name: string }; onBack: () =>
         | undefined,
   )
 
-  function handleConnect() {
-    local.model.set({ providerID: "agentos", modelID: props.agent.id }, { recent: true })
-    dialog.clear() // Close dialog after connecting
-  }
-
-  function handleDisconnect() {
-    // Clear the current model selection to disconnect from agent
-    local.model.set(undefined)
-    dialog.clear() // Close dialog after disconnecting
-  }
-
   useKeyboard((evt) => {
     // Ctrl+B goes back to agent list
     if (evt.ctrl && evt.name === "b") {
       props.onBack()
-      evt.preventDefault()
-    }
-    // Enter connects to available agents or disconnects from connected agents
-    if (evt.name === "return") {
-      if (isConnected()) {
-        handleDisconnect()
-      } else {
-        handleConnect()
-      }
       evt.preventDefault()
     }
   })
@@ -386,18 +383,6 @@ function AgentDetail(props: { agent: { id: string; name: string }; onBack: () =>
 
       {/* Actions hint */}
       <box flexDirection="row" gap={3} paddingTop={1}>
-        <Show
-          when={!isConnected()}
-          fallback={
-            <text fg={theme.textMuted}>
-              <span style={{ fg: theme.text }}>Enter</span> disconnect
-            </text>
-          }
-        >
-          <text fg={theme.textMuted}>
-            <span style={{ fg: theme.text }}>Enter</span> connect
-          </text>
-        </Show>
         <text fg={theme.textMuted}>
           <span style={{ fg: theme.text }}>Ctrl+B</span> back
         </text>
