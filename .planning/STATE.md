@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 
 ## Current Position
 
-Phase: 4 of 4 (Agent List View)
+Phase: 5 of 4 (Agent Detail View)
 Plan: 1 of 1
-Status: Phase 4 Complete ✓
-Last activity: 2026-02-01 — Completed 04-01-PLAN.md
+Status: Phase 5 Complete
+Last activity: 2026-02-01 — Completed 05-01-PLAN.md
 
-Progress: [==========----------] 2/4 phases complete
+Progress: [===============-----] 3/4 phases complete
 
 ## Milestone v1.1 Overview
 
@@ -22,7 +22,7 @@ Progress: [==========----------] 2/4 phases complete
 |-------|------|--------------|--------|
 | 3 | UI Infrastructure | UI-01, UI-02, UI-03, UI-04 | ✓ Complete |
 | 4 | Agent List View | AGNT-01, AGNT-02, AGNT-03, AGNT-04 | ✓ Complete |
-| 5 | Agent Detail View | DETL-01 through DETL-07 | Pending |
+| 5 | Agent Detail View | DETL-01 through DETL-07 | ✓ Complete |
 | 6 | Polish & Placeholders | PLCH-01, PLCH-02, PLCH-03, PLCH-04 | Pending |
 
 ## Performance Metrics
@@ -46,6 +46,7 @@ Progress: [==========----------] 2/4 phases complete
 |-------|-------|-------|----------|
 | 03-ui-infrastructure | 2 | 3min | 1.5min |
 | 04-agent-list-view | 1 | 2.5min | 2.5min |
+| 05-agent-detail-view | 1 | 15min | 15min |
 
 **Milestone v1.0:**
 
@@ -74,6 +75,9 @@ All v1.0 decisions logged in PROJECT.md Key Decisions table.
 | Agent list from agentos provider | Agents extracted from sync.data.provider agentos models | 04-01 |
 | Connected agent via local.model.current() | Match providerID=agentos to determine connected agent | 04-01 |
 | Sort: connected first, then alphabetical | Prioritize current agent for visibility | 04-01 |
+| Enter = quick connect from list | User wanted faster workflow, most common action | 05-01 |
+| Ctrl+L = view details | Secondary action for read-only detail panel | 05-01 |
+| Ctrl+B = back navigation | Consistent Ctrl+key pattern for returning to list | 05-01 |
 
 ### Research Findings (v1.1)
 
@@ -100,7 +104,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Phase 4 complete, ready for Phase 5
+Stopped at: Phase 5 complete, ready for Phase 6
 Resume file: None
 
 Config (if exists):
@@ -120,4 +124,4 @@ Config (if exists):
 ```
 
 ---
-*State updated: 2026-02-01 after Phase 4 completion*
+*State updated: 2026-02-01 after Phase 5 completion*

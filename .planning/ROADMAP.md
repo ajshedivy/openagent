@@ -71,7 +71,7 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 05-01-PLAN.md — Enhance AgentDetail with full information display and connect action
+- [x] 05-01-PLAN.md — Enhance AgentDetail with full information display and connect action
 
 **Requirements:**
 - DETL-01: Detail panel displays agent name prominently
@@ -117,7 +117,7 @@ Plans:
 |-------|------|--------|-------|-----------|
 | 3 | UI Infrastructure | ✓ Complete | 2 | 2 |
 | 4 | Agent List View | ✓ Complete | 1 | 1 |
-| 5 | Agent Detail View | Planned | 1 | 0 |
+| 5 | Agent Detail View | ✓ Complete | 1 | 1 |
 | 6 | Polish & Placeholders | Pending | 0 | 0 |
 
 **Coverage:** 19/19 requirements mapped
