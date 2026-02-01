@@ -46,7 +46,7 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 04-01-PLAN.md — Implement agent list with selection and detail view placeholder
+- [x] 04-01-PLAN.md — Implement agent list with selection and detail view placeholder
 
 **Requirements:**
 - AGNT-01: Agent list displays all discovered agents from AgentOS API
@@ -111,7 +111,7 @@ Plans:
 | Phase | Name | Status | Plans | Completed |
 |-------|------|--------|-------|-----------|
 | 3 | UI Infrastructure | ✓ Complete | 2 | 2 |
-| 4 | Agent List View | In Progress | 1 | 0 |
+| 4 | Agent List View | ✓ Complete | 1 | 1 |
 | 5 | Agent Detail View | Pending | 0 | 0 |
 | 6 | Polish & Placeholders | Pending | 0 | 0 |
 
