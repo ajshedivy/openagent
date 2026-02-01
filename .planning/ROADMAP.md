@@ -91,23 +91,28 @@ Plans:
 
 ---
 
-### Phase 6: Polish & Placeholders
+### Phase 6: Model Provider Separation
 
-**Goal:** Hub is complete with placeholder sections and refined keyboard navigation.
+**Goal:** AgentOS agents are only accessible via /agno hub; /models shows only external providers.
 
 **Dependencies:** Phase 5 (core hub functionality complete)
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 06-01-PLAN.md — Filter AgentOS from /models dialog in web app and TUI
+
 **Requirements:**
-- PLCH-01: Teams tab visible in tab bar
-- PLCH-02: Teams section shows "Coming soon" message when selected
-- PLCH-03: Workflows tab visible in tab bar
-- PLCH-04: Workflows section shows "Coming soon" message when selected
+- SEP-01: Remove AgentOS provider from /models dialog
+- SEP-02: /models shows only external model providers (Anthropic, OpenAI, etc.)
+- SEP-03: /agno is the exclusive interface for AgentOS agents
+- SEP-04: Placeholders for Teams and Workflows tabs show "Coming soon"
 
 **Success Criteria:**
-1. User can tab to Teams section and sees "Coming soon" placeholder
-2. User can tab to Workflows section and sees "Coming soon" placeholder
-3. Full keyboard navigation works: Tab between sections, arrows to navigate lists, Enter to select, Escape to go back
-4. Hub feels polished and complete even with placeholder sections
+1. User types /models and sees only external providers (no AgentOS)
+2. User types /agno to access AgentOS agents exclusively
+3. Clear separation: /models = external LLMs, /agno = AgentOS agents
+4. Teams and Workflows tabs show placeholder content
 
 ---
 
@@ -118,7 +123,7 @@ Plans:
 | 3 | UI Infrastructure | ✓ Complete | 2 | 2 |
 | 4 | Agent List View | ✓ Complete | 1 | 1 |
 | 5 | Agent Detail View | ✓ Complete | 1 | 1 |
-| 6 | Polish & Placeholders | Pending | 0 | 0 |
+| 6 | Model Provider Separation | Planned | 1 | 0 |
 
 **Coverage:** 19/19 requirements mapped
 
@@ -129,7 +134,7 @@ Plans:
 | UI Infrastructure | UI-01, UI-02, UI-03, UI-04 | Phase 3 |
 | Agent List | AGNT-01, AGNT-02, AGNT-03, AGNT-04 | Phase 4 |
 | Agent Detail | DETL-01, DETL-02, DETL-03, DETL-04, DETL-05, DETL-06, DETL-07 | Phase 5 |
-| Placeholder Sections | PLCH-01, PLCH-02, PLCH-03, PLCH-04 | Phase 6 |
+| Model Separation | SEP-01, SEP-02, SEP-03, SEP-04 | Phase 6 |
 
 ---
 *Roadmap created: 2026-02-01*
