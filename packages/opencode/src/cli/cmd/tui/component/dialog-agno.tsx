@@ -294,21 +294,95 @@ function AgentRow(props: {
 
 function AgentDetail(props: { agent: { id: string; name: string }; onBack: () => void }) {
   const { theme } = useTheme()
+  const sync = useSync()
+  const local = useLocal()
+  const dialog = useDialog()
+
+  // Get full model data from provider
+  const model = createMemo(() => {
+    const provider = sync.data.provider.find((p) => p.id === "agentos")
+    return provider?.models[props.agent.id]
+  })
+
+  const isConnected = createMemo(() => {
+    const current = local.model.current()
+    return current?.providerID === "agentos" && current?.modelID === props.agent.id
+  })
+
+  const metadata = createMemo(
+    () =>
+      model()?.options.agentMetadata as
+        | {
+            description: string | null
+            role: string | null
+            model: { name: string; model: string; provider: string } | null
+          }
+        | undefined,
+  )
+
+  function handleConnect() {
+    local.model.set({ providerID: "agentos", modelID: props.agent.id }, { recent: true })
+    dialog.clear() // Close dialog after connecting
+  }
 
   useKeyboard((evt) => {
     if (evt.name === "escape") {
       props.onBack()
       evt.preventDefault()
     }
+    if (evt.name === "return" && !isConnected()) {
+      handleConnect()
+      evt.preventDefault()
+    }
   })
 
   return (
     <box flexDirection="column" gap={1}>
+      {/* Agent name */}
       <text fg={theme.text} attributes={TextAttributes.BOLD}>
-        {props.agent.name}
+        {model()?.name || props.agent.name}
       </text>
-      <text fg={theme.textMuted}>Agent details coming in Phase 5</text>
-      <text fg={theme.textMuted}>Press Esc to go back</text>
+
+      {/* Status */}
+      <box flexDirection="row" gap={1}>
+        <text flexShrink={0} fg={isConnected() ? theme.success : theme.textMuted}>
+          {"\u2022"}
+        </text>
+        <text fg={theme.text}>
+          {isConnected() ? "Connected" : "Available"}
+        </text>
+      </box>
+
+      {/* Model info */}
+      <Show when={metadata()?.model}>
+        <text fg={theme.textMuted}>
+          Model: {metadata()!.model!.model} ({metadata()!.model!.provider})
+        </text>
+      </Show>
+
+      {/* Tools */}
+      <text fg={theme.textMuted}>
+        Tools: {model()?.capabilities?.toolcall ? "Available" : "None"}
+      </text>
+
+      {/* Description */}
+      <Show when={metadata()?.description}>
+        <text fg={theme.textMuted} wrapMode="word">
+          {metadata()!.description}
+        </text>
+      </Show>
+
+      {/* Actions hint */}
+      <box flexDirection="row" gap={3} paddingTop={1}>
+        <Show when={!isConnected()}>
+          <text fg={theme.textMuted}>
+            <span style={{ fg: theme.text }}>Enter</span> connect
+          </text>
+        </Show>
+        <text fg={theme.textMuted}>
+          <span style={{ fg: theme.text }}>Esc</span> back
+        </text>
+      </box>
     </box>
   )
 }
