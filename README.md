@@ -58,12 +58,14 @@ Openagent connects you to the AgentOS ecosystem:
 - **Session Persistence** — Continue conversations across sessions
 
 <p align="center">
-  <img src="docs/agentos-hub.png" alt="AgentOS Hub - Browse available agents" width="45%">
-  <img src="docs/agent-details.png" alt="Agent Details - View configuration and connect" width="45%">
+  <img src="docs/agentos-hub.png" alt="AgentOS Hub - Browse available agents" width="80%">
 </p>
+<p align="center"><em>AgentOS Hub — Browse and connect to available agents</em></p>
+
 <p align="center">
-  <em>Left: AgentOS Hub showing available agents &nbsp;•&nbsp; Right: Agent details with model and tool configuration</em>
+  <img src="docs/agent-details.png" alt="Agent Details - View configuration and connect" width="80%">
 </p>
+<p align="center"><em>Agent Details — View model and tool configuration</em></p>
 
 ## Quick Start
 
