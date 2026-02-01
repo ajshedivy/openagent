@@ -8,6 +8,17 @@ A terminal CLI client for Agno AgentOS. Built as a fork of opencode, openagent l
 
 Connect to AgentOS agents from the terminal with a great user experience — agent discovery, rich interaction, and multi-agent orchestration.
 
+## Current Milestone: v1.1 AgentOS Hub
+
+**Goal:** Create `/agno` slash command as the central hub for viewing and managing AgentOS artifacts (agents, teams, workflows).
+
+**Target features:**
+- Tabbed UI with Agents, Teams, Workflows sections
+- Agent list with status indicators and metadata summary
+- Agent detail view (identity, config, runtime status)
+- Connect/switch active agent from hub
+- Teams/Workflows tabs as "coming soon" placeholders
+
 ## Current State
 
 **Version:** v1.0 Minimal Divergence (shipped 2026-01-31)
@@ -46,9 +57,15 @@ Openagent is now an independent project with its own repository, CLI binary, and
 
 ### Active
 
-<!-- Next milestone: TBD — run /gsd:new-milestone to define -->
+<!-- v1.1 AgentOS Hub -->
 
-(No active requirements — run `/gsd:new-milestone` to start next milestone)
+- [ ] `/agno` slash command registered in TUI
+- [ ] Tabbed dialog UI (Agents | Teams | Workflows)
+- [ ] Agent list view with status, model, tool count
+- [ ] Agent detail view (identity, config, health)
+- [ ] Connect/switch agent from detail view
+- [ ] Teams tab placeholder ("coming soon")
+- [ ] Workflows tab placeholder ("coming soon")
 
 ### Out of Scope
 
@@ -102,4 +119,4 @@ Openagent is now an independent project with its own repository, CLI binary, and
 | Defer full package rebrand to v2.0 | Minimal changes for v1.0, keep compatibility | ✓ Good — fast ship |
 
 ---
-*Last updated: 2026-01-31 after v1.0 milestone*
+*Last updated: 2026-02-01 after v1.1 milestone started*

@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-01-31)
 
 **Core value:** Connect to AgentOS agents from the terminal with a great user experience
-**Current focus:** Planning next milestone
+**Current focus:** v1.1 AgentOS Hub — /agno slash command
 
 ## Current Position
 
 Phase: —
 Plan: —
-Status: v1.0 complete, ready for next milestone
-Last activity: 2026-01-31 — v1.0 Minimal Divergence shipped
+Status: Defining requirements for v1.1
+Last activity: 2026-02-01 — Milestone v1.1 started
 
-Progress: Milestone complete ✓
+Progress: Milestone initialized
 
 ## Performance Metrics
 
