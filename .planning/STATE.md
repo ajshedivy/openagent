@@ -9,19 +9,19 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 
 ## Current Position
 
-Phase: 3 of 4 (UI Infrastructure)
-Plan: —
-Status: Phase 3 Complete ✓
-Last activity: 2026-02-01 — Phase 3 verified and complete
+Phase: 4 of 4 (Agent List View)
+Plan: 1 of 1
+Status: Phase 4 Complete ✓
+Last activity: 2026-02-01 — Completed 04-01-PLAN.md
 
-Progress: [=====---------------] 1/4 phases complete
+Progress: [==========----------] 2/4 phases complete
 
 ## Milestone v1.1 Overview
 
 | Phase | Name | Requirements | Status |
 |-------|------|--------------|--------|
 | 3 | UI Infrastructure | UI-01, UI-02, UI-03, UI-04 | ✓ Complete |
-| 4 | Agent List View | AGNT-01, AGNT-02, AGNT-03, AGNT-04 | Pending |
+| 4 | Agent List View | AGNT-01, AGNT-02, AGNT-03, AGNT-04 | ✓ Complete |
 | 5 | Agent Detail View | DETL-01 through DETL-07 | Pending |
 | 6 | Polish & Placeholders | PLCH-01, PLCH-02, PLCH-03, PLCH-04 | Pending |
 
@@ -29,9 +29,9 @@ Progress: [=====---------------] 1/4 phases complete
 
 **Velocity:**
 
-- Total plans completed: 5
+- Total plans completed: 6
 - Average duration: 3min
-- Total execution time: 0.23 hours
+- Total execution time: 0.27 hours
 
 **By Phase (v1.0):**
 
@@ -45,6 +45,7 @@ Progress: [=====---------------] 1/4 phases complete
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 03-ui-infrastructure | 2 | 3min | 1.5min |
+| 04-agent-list-view | 1 | 2.5min | 2.5min |
 
 **Milestone v1.0:**
 
@@ -61,7 +62,7 @@ _Updated after v1.0 milestone completion_
 
 All v1.0 decisions logged in PROJECT.md Key Decisions table.
 
-**v1.1 Decisions (Phase 3):**
+**v1.1 Decisions (Phase 3-4):**
 
 | Decision | Rationale | Plan |
 |----------|-----------|------|
@@ -70,6 +71,9 @@ All v1.0 decisions logged in PROJECT.md Key Decisions table.
 | Medium dialog size | Matches existing "Select model" dialog sizing | 03-01 |
 | /agno in Agent category | Groups with Switch agent, Toggle MCPs for discoverability | 03-02 |
 | Aliases /hub and /agentos | Multiple paths to access hub for discoverability | 03-02 |
+| Agent list from agentos provider | Agents extracted from sync.data.provider agentos models | 04-01 |
+| Connected agent via local.model.current() | Match providerID=agentos to determine connected agent | 04-01 |
+| Sort: connected first, then alphabetical | Prioritize current agent for visibility | 04-01 |
 
 ### Research Findings (v1.1)
 
@@ -96,7 +100,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Phase 3 complete, ready for Phase 4
+Stopped at: Completed 04-01-PLAN.md
 Resume file: None
 
 Config (if exists):
@@ -116,4 +120,4 @@ Config (if exists):
 ```
 
 ---
-*State updated: 2026-02-01 after Phase 3 completion*
+*State updated: 2026-02-01 after Phase 4 completion*
