@@ -68,6 +68,11 @@ Plans:
 
 **Dependencies:** Phase 4 (agent list with selection)
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 05-01-PLAN.md — Enhance AgentDetail with full information display and connect action
+
 **Requirements:**
 - DETL-01: Detail panel displays agent name prominently
 - DETL-02: Detail panel shows model identifier
@@ -112,7 +117,7 @@ Plans:
 |-------|------|--------|-------|-----------|
 | 3 | UI Infrastructure | ✓ Complete | 2 | 2 |
 | 4 | Agent List View | ✓ Complete | 1 | 1 |
-| 5 | Agent Detail View | Pending | 0 | 0 |
+| 5 | Agent Detail View | Planned | 1 | 0 |
 | 6 | Polish & Placeholders | Pending | 0 | 0 |
 
 **Coverage:** 19/19 requirements mapped
