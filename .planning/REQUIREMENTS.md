@@ -9,10 +9,10 @@ Requirements for the AgentOS Hub milestone. Each maps to roadmap phases.
 
 ### UI Infrastructure
 
-- [ ] **UI-01**: `/agno` slash command registered in TUI command system
-- [ ] **UI-02**: Tabbed dialog component with Agents | Teams | Workflows sections
-- [ ] **UI-03**: Tab key cycles between sections with visual indicator
-- [ ] **UI-04**: Dialog styling consistent with existing opencode dialogs (theme, spacing)
+- [x] **UI-01**: `/agno` slash command registered in TUI command system
+- [x] **UI-02**: Tabbed dialog component with Agents | Teams | Workflows sections
+- [x] **UI-03**: Tab key cycles between sections with visual indicator
+- [x] **UI-04**: Dialog styling consistent with existing opencode dialogs (theme, spacing)
 
 ### Agent List
 
@@ -85,10 +85,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| UI-01 | Phase 3 | Pending |
-| UI-02 | Phase 3 | Pending |
-| UI-03 | Phase 3 | Pending |
-| UI-04 | Phase 3 | Pending |
+| UI-01 | Phase 3 | Complete |
+| UI-02 | Phase 3 | Complete |
+| UI-03 | Phase 3 | Complete |
+| UI-04 | Phase 3 | Complete |
 | AGNT-01 | Phase 4 | Pending |
 | AGNT-02 | Phase 4 | Pending |
 | AGNT-03 | Phase 4 | Pending |
@@ -112,4 +112,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-01*
-*Last updated: 2026-02-01 after roadmap creation*
+*Last updated: 2026-02-01 after Phase 3 completion*

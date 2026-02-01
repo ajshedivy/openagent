@@ -20,8 +20,8 @@ This roadmap delivers the `/agno` slash command as a central hub for viewing and
 **Plans:** 2 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Create DialogAgno tabbed hub component
-- [ ] 03-02-PLAN.md — Register /agno slash command
+- [x] 03-01-PLAN.md — Create DialogAgno tabbed hub component
+- [x] 03-02-PLAN.md — Register /agno slash command
 
 **Requirements:**
 - UI-01: `/agno` slash command registered in TUI command system
@@ -105,7 +105,7 @@ Plans:
 
 | Phase | Name | Status | Plans | Completed |
 |-------|------|--------|-------|-----------|
-| 3 | UI Infrastructure | Ready | 2 | 0 |
+| 3 | UI Infrastructure | ✓ Complete | 2 | 2 |
 | 4 | Agent List View | Pending | 0 | 0 |
 | 5 | Agent Detail View | Pending | 0 | 0 |
 | 6 | Polish & Placeholders | Pending | 0 | 0 |
