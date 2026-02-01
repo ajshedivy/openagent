@@ -10,17 +10,17 @@ See: .planning/PROJECT.md (updated 2026-02-01)
 ## Current Position
 
 Phase: 3 of 4 (UI Infrastructure)
-Plan: 1 of 3 complete
+Plan: 2 of 3 complete
 Status: In progress
-Last activity: 2026-02-01 — Completed 03-01-PLAN.md
+Last activity: 2026-02-01 — Completed 03-02-PLAN.md
 
-Progress: [=====---------------] 1/4 phases (Plan 1/3 in Phase 3)
+Progress: [==========----------] 2/4 phases (Plan 2/3 in Phase 3)
 
 ## Milestone v1.1 Overview
 
 | Phase | Name | Requirements | Status |
 |-------|------|--------------|--------|
-| 3 | UI Infrastructure | UI-01, UI-02, UI-03, UI-04 | In Progress (1/3 plans) |
+| 3 | UI Infrastructure | UI-01, UI-02, UI-03, UI-04 | In Progress (2/3 plans) |
 | 4 | Agent List View | AGNT-01, AGNT-02, AGNT-03, AGNT-04 | Pending |
 | 5 | Agent Detail View | DETL-01 through DETL-07 | Pending |
 | 6 | Polish & Placeholders | PLCH-01, PLCH-02, PLCH-03, PLCH-04 | Pending |
@@ -29,9 +29,9 @@ Progress: [=====---------------] 1/4 phases (Plan 1/3 in Phase 3)
 
 **Velocity:**
 
-- Total plans completed: 4
+- Total plans completed: 5
 - Average duration: 3min
-- Total execution time: 0.21 hours
+- Total execution time: 0.23 hours
 
 **By Phase (v1.0):**
 
@@ -44,7 +44,7 @@ Progress: [=====---------------] 1/4 phases (Plan 1/3 in Phase 3)
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 03-ui-infrastructure | 1 | 1min | 1min |
+| 03-ui-infrastructure | 2 | 3min | 1.5min |
 
 **Milestone v1.0:**
 
@@ -68,6 +68,8 @@ All v1.0 decisions logged in PROJECT.md Key Decisions table.
 | Underline-style tab indicator | Matches browser/GitHub tab pattern, uses theme.primary | 03-01 |
 | Tab key cycles sections | Consistent with dialog-export-options pattern | 03-01 |
 | Medium dialog size | Matches existing "Select model" dialog sizing | 03-01 |
+| /agno in Agent category | Groups with Switch agent, Toggle MCPs for discoverability | 03-02 |
+| Aliases /hub and /agentos | Multiple paths to access hub for discoverability | 03-02 |
 
 ### Research Findings (v1.1)
 
@@ -78,6 +80,10 @@ All v1.0 decisions logged in PROJECT.md Key Decisions table.
 ### Key Files Created (v1.1)
 
 - `packages/opencode/src/cli/cmd/tui/component/dialog-agno.tsx` - Tabbed hub component
+
+### Key Files Modified (v1.1)
+
+- `packages/opencode/src/cli/cmd/tui/app.tsx` - /agno command registration
 
 ### Pending Todos
 
@@ -90,7 +96,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-01
-Stopped at: Completed 03-01-PLAN.md
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None
 
 Config (if exists):
@@ -110,4 +116,4 @@ Config (if exists):
 ```
 
 ---
-*State updated: 2026-02-01 after 03-01-PLAN.md completion*
+*State updated: 2026-02-01 after 03-02-PLAN.md completion*
