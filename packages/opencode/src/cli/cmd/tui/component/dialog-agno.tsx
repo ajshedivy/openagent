@@ -3,9 +3,10 @@ import { createStore } from "solid-js/store"
 import { useTheme, selectedForeground } from "@tui/context/theme"
 import { useDialog, type DialogContext } from "@tui/ui/dialog"
 import { TextAttributes, RGBA, ScrollBoxRenderable } from "@opentui/core"
-import { Show, For, onMount, createMemo, createEffect } from "solid-js"
+import { Show, For, onMount, createMemo, createEffect, createSignal } from "solid-js"
 import { useSync } from "@tui/context/sync"
 import { useLocal } from "@tui/context/local"
+import { useSDK } from "@tui/context/sdk"
 
 type TabId = "agents" | "teams" | "workflows"
 
@@ -20,9 +21,22 @@ export function DialogAgno() {
   const { theme } = useTheme()
   const sync = useSync()
   const local = useLocal()
+  const sdk = useSDK()
+  const [isRefreshing, setIsRefreshing] = createSignal(false)
+
+  async function handleRefresh() {
+    if (isRefreshing()) return
+    setIsRefreshing(true)
+    try {
+      await sdk.client.instance.dispose()
+      await sync.bootstrap()
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
+
   const [store, setStore] = createStore({
     activeTab: "agents" as TabId,
-    searchQuery: "",
     selectedIndex: 0,
     selectedAgent: null as { id: string; name: string } | null,
   })
@@ -51,23 +65,15 @@ export function DialogAgno() {
     })
   })
 
-  // Create filtered agents memo
-  const filteredAgents = createMemo(() => {
-    const allAgents = agents()
-    if (!store.searchQuery.trim()) return allAgents
-    const query = store.searchQuery.toLowerCase()
-    return allAgents.filter((agent) => agent.name.toLowerCase().includes(query))
-  })
-
   // Calculate list height based on terminal dimensions
   const dimensions = useTerminalDimensions()
   const height = createMemo(() =>
-    Math.min(filteredAgents().length, Math.floor(dimensions().height / 2) - 8),
+    Math.min(agents().length, Math.floor(dimensions().height / 2) - 8),
   )
 
   // Initialize selectedIndex to connected agent on mount
   createEffect(() => {
-    const agentList = filteredAgents()
+    const agentList = agents()
     const connectedIndex = agentList.findIndex((a) => a.isConnected)
     if (connectedIndex >= 0) {
       setStore("selectedIndex", connectedIndex)
@@ -88,10 +94,16 @@ export function DialogAgno() {
       evt.preventDefault()
     }
 
+    // Ctrl+R = refresh/reconnect to AgentOS server
+    if (evt.ctrl && evt.name === "r") {
+      handleRefresh()
+      evt.preventDefault()
+    }
+
     // Handle agent list navigation when on agents tab and not in detail view
     if (store.activeTab === "agents" && store.selectedAgent === null) {
       if (evt.name === "up" || (evt.ctrl && evt.name === "p")) {
-        const agentList = filteredAgents()
+        const agentList = agents()
         if (agentList.length === 0) return
         let next = store.selectedIndex - 1
         if (next < 0) next = agentList.length - 1
@@ -100,7 +112,7 @@ export function DialogAgno() {
         evt.preventDefault()
       }
       if (evt.name === "down" || (evt.ctrl && evt.name === "n")) {
-        const agentList = filteredAgents()
+        const agentList = agents()
         if (agentList.length === 0) return
         let next = store.selectedIndex + 1
         if (next >= agentList.length) next = 0
@@ -110,7 +122,7 @@ export function DialogAgno() {
       }
       // Enter = quick connect to selected agent
       if (evt.name === "return") {
-        const agentList = filteredAgents()
+        const agentList = agents()
         const selectedAgent = agentList[store.selectedIndex]
         if (selectedAgent) {
           local.model.set({ providerID: "agentos", modelID: selectedAgent.id }, { recent: true })
@@ -120,7 +132,7 @@ export function DialogAgno() {
       }
       // Ctrl+L = view details (read-only)
       if (evt.ctrl && evt.name === "l") {
-        const agentList = filteredAgents()
+        const agentList = agents()
         const selectedAgent = agentList[store.selectedIndex]
         if (selectedAgent) {
           setStore("selectedAgent", { id: selectedAgent.id, name: selectedAgent.name })
@@ -132,7 +144,7 @@ export function DialogAgno() {
 
   function scrollToSelected() {
     if (!scrollRef) return
-    const agentList = filteredAgents()
+    const agentList = agents()
     const target = scrollRef.getChildren().find((child) => {
       const index = Number(child.id)
       return !isNaN(index) && index === store.selectedIndex
@@ -152,9 +164,14 @@ export function DialogAgno() {
       {/* Header with title and esc hint */}
       <box paddingLeft={4} paddingRight={4}>
         <box flexDirection="row" justifyContent="space-between">
-          <text fg={theme.text} attributes={TextAttributes.BOLD}>
-            AgentOS Hub
-          </text>
+          <box flexDirection="row" gap={2} alignItems="center">
+            <text fg={theme.text} attributes={TextAttributes.BOLD}>
+              AgentOS Hub
+            </text>
+            <Show when={isRefreshing()}>
+              <text fg={theme.textMuted}>Refreshing...</text>
+            </Show>
+          </box>
           <text fg={theme.textMuted}>esc</text>
         </box>
       </box>
@@ -189,19 +206,8 @@ export function DialogAgno() {
         </box>
       </box>
 
-      {/* Search input */}
-      <box paddingLeft={4} paddingRight={4} paddingTop={1}>
-        <input
-          onInput={(e) => setStore("searchQuery", e)}
-          focusedBackgroundColor={theme.backgroundPanel}
-          cursorColor={theme.primary}
-          focusedTextColor={theme.textMuted}
-          placeholder="Search"
-        />
-      </box>
-
       {/* Content area based on active tab */}
-      <box paddingLeft={4} paddingRight={4} paddingTop={1} minHeight={5}>
+      <box paddingLeft={4} paddingRight={4} minHeight={5}>
         <Show when={store.activeTab === "agents"}>
           <Show
             when={!store.selectedAgent}
@@ -209,11 +215,18 @@ export function DialogAgno() {
               <AgentDetail
                 agent={store.selectedAgent!}
                 onBack={() => setStore("selectedAgent", null)}
+                onConnect={() => {
+                  local.model.set(
+                    { providerID: "agentos", modelID: store.selectedAgent!.id },
+                    { recent: true },
+                  )
+                  dialog.clear()
+                }}
               />
             }
           >
             <Show
-              when={filteredAgents().length > 0}
+              when={agents().length > 0}
               fallback={<text fg={theme.textMuted}>No agents found</text>}
             >
               <scrollbox
@@ -221,7 +234,7 @@ export function DialogAgno() {
                 maxHeight={height()}
                 scrollbarOptions={{ visible: false }}
               >
-                <For each={filteredAgents()}>
+                <For each={agents()}>
                   {(agent, index) => (
                     <AgentRow
                       id={String(index())}
@@ -257,12 +270,20 @@ export function DialogAgno() {
           <text fg={theme.textMuted}>
             <span style={{ fg: theme.text }}>Ctrl+L</span> details
           </text>
+          <text fg={theme.textMuted}>
+            <span style={{ fg: theme.text }}>Ctrl+R</span> refresh
+          </text>
+        </Show>
+        <Show when={store.activeTab === "agents" && store.selectedAgent}>
+          <text fg={theme.textMuted}>
+            <span style={{ fg: theme.text }}>Enter</span> connect
+          </text>
+          <text fg={theme.textMuted}>
+            <span style={{ fg: theme.text }}>Ctrl+B</span> back
+          </text>
         </Show>
         <text fg={theme.textMuted}>
           <span style={{ fg: theme.text }}>Tab</span> switch section
-        </text>
-        <text fg={theme.textMuted}>
-          <span style={{ fg: theme.text }}>Esc</span> close
         </text>
       </box>
     </box>
@@ -310,7 +331,11 @@ function AgentRow(props: {
   )
 }
 
-function AgentDetail(props: { agent: { id: string; name: string }; onBack: () => void }) {
+function AgentDetail(props: {
+  agent: { id: string; name: string }
+  onBack: () => void
+  onConnect: () => void
+}) {
   const { theme } = useTheme()
   const sync = useSync()
   const local = useLocal()
@@ -338,54 +363,60 @@ function AgentDetail(props: { agent: { id: string; name: string }; onBack: () =>
   )
 
   useKeyboard((evt) => {
-    // Ctrl+B goes back to agent list
     if (evt.ctrl && evt.name === "b") {
       props.onBack()
+      evt.preventDefault()
+    }
+    if (evt.name === "return") {
+      props.onConnect()
       evt.preventDefault()
     }
   })
 
   return (
     <box flexDirection="column" gap={1}>
-      {/* Agent name */}
-      <text fg={theme.text} attributes={TextAttributes.BOLD}>
-        {model()?.name || props.agent.name}
-      </text>
-
-      {/* Status */}
-      <box flexDirection="row" gap={1}>
-        <text flexShrink={0} fg={isConnected() ? theme.success : theme.textMuted}>
-          {"\u2022"}
+      {/* Header: Name + Status */}
+      <box flexDirection="row" gap={2} alignItems="center">
+        <text fg={theme.text} attributes={TextAttributes.BOLD}>
+          {model()?.name || props.agent.name}
         </text>
-        <text fg={theme.text}>
-          {isConnected() ? "Connected" : "Available"}
+        <text fg={isConnected() ? theme.success : theme.textMuted}>
+          {isConnected() ? "● Connected" : "○ Available"}
         </text>
       </box>
 
-      {/* Model info */}
-      <Show when={metadata()?.model}>
-        <text fg={theme.textMuted}>
-          Model: {metadata()!.model!.model} ({metadata()!.model!.provider})
-        </text>
-      </Show>
-
-      {/* Tools */}
-      <text fg={theme.textMuted}>
-        Tools: {model()?.capabilities?.toolcall ? "Available" : "None"}
-      </text>
-
       {/* Description */}
       <Show when={metadata()?.description}>
-        <text fg={theme.textMuted} wrapMode="word">
+        <text fg={theme.text} wrapMode="word">
           {metadata()!.description}
         </text>
       </Show>
 
-      {/* Actions hint */}
-      <box flexDirection="row" gap={3} paddingTop={1}>
-        <text fg={theme.textMuted}>
-          <span style={{ fg: theme.text }}>Ctrl+B</span> back
+      {/* Configuration section */}
+      <box gap={0}>
+        <text fg={theme.textMuted} attributes={TextAttributes.BOLD}>
+          Configuration
         </text>
+        <box paddingLeft={2} paddingTop={0}>
+          <Show when={metadata()?.model}>
+            <box flexDirection="row">
+              <text fg={theme.textMuted}>Model    </text>
+              <text fg={theme.text}>
+                {metadata()!.model!.model}
+              </text>
+            </box>
+            <box flexDirection="row">
+              <text fg={theme.textMuted}>Provider </text>
+              <text fg={theme.text}>{metadata()!.model!.provider}</text>
+            </box>
+          </Show>
+          <box flexDirection="row">
+            <text fg={theme.textMuted}>Tools    </text>
+            <text fg={model()?.capabilities?.toolcall ? theme.success : theme.textMuted}>
+              {model()?.capabilities?.toolcall ? "Enabled" : "None"}
+            </text>
+          </box>
+        </box>
       </box>
     </box>
   )
