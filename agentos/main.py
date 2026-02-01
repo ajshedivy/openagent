@@ -7,6 +7,7 @@ from rich.console import Console
 from agno.tools import tool
 import httpx
 import json
+from agent_with_tools import agent_with_tools
 
 load_dotenv()
 
@@ -43,12 +44,15 @@ def get_top_hackernews_stories(num_stories: int) -> str:
 web_agent = Agent(
     name="News Agent",
     model=Claude(id="claude-sonnet-4-5"),
+    description="A cool news agent",
     tools=[get_top_hackernews_stories],
     markdown=True,
     db=SqliteDb(db_file="tmp/confirmation_required_toolkit.db"),
 )
 
-agent_os = AgentOS(agents=[web_agent], enable_mcp_server=True)
+agent_os = AgentOS(
+    name="Test AgentOS", agents=[web_agent, agent_with_tools], enable_mcp_server=True
+)
 app = agent_os.get_app()
 
 if __name__ == "__main__":
