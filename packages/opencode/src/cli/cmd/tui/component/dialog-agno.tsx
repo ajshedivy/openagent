@@ -1,9 +1,11 @@
-import { useKeyboard } from "@opentui/solid"
+import { useKeyboard, useTerminalDimensions } from "@opentui/solid"
 import { createStore } from "solid-js/store"
-import { useTheme } from "@tui/context/theme"
+import { useTheme, selectedForeground } from "@tui/context/theme"
 import { useDialog, type DialogContext } from "@tui/ui/dialog"
-import { TextAttributes } from "@opentui/core"
-import { Show, For, onMount } from "solid-js"
+import { TextAttributes, RGBA, ScrollBoxRenderable } from "@opentui/core"
+import { Show, For, onMount, createMemo, createEffect } from "solid-js"
+import { useSync } from "@tui/context/sync"
+import { useLocal } from "@tui/context/local"
 
 type TabId = "agents" | "teams" | "workflows"
 
@@ -16,10 +18,63 @@ const TABS: { id: TabId; label: string }[] = [
 export function DialogAgno() {
   const dialog = useDialog()
   const { theme } = useTheme()
+  const sync = useSync()
+  const local = useLocal()
   const [store, setStore] = createStore({
     activeTab: "agents" as TabId,
     searchQuery: "",
+    selectedIndex: 0,
+    selectedAgent: null as { id: string; name: string } | null,
   })
+
+  // Create agents memo from sync provider data
+  const agents = createMemo(() => {
+    const agentosProvider = sync.data.provider.find((p) => p.id === "agentos")
+    if (!agentosProvider) return []
+
+    const currentModel = local.model.current()
+    const connectedAgentId =
+      currentModel?.providerID === "agentos" ? currentModel.modelID : null
+
+    // Extract agents from models
+    const agentList = Object.entries(agentosProvider.models).map(([id, model]) => ({
+      id,
+      name: model.name,
+      isConnected: id === connectedAgentId,
+    }))
+
+    // Sort: connected first, then alphabetically
+    return agentList.sort((a, b) => {
+      if (a.isConnected && !b.isConnected) return -1
+      if (!a.isConnected && b.isConnected) return 1
+      return a.name.localeCompare(b.name)
+    })
+  })
+
+  // Create filtered agents memo
+  const filteredAgents = createMemo(() => {
+    const allAgents = agents()
+    if (!store.searchQuery.trim()) return allAgents
+    const query = store.searchQuery.toLowerCase()
+    return allAgents.filter((agent) => agent.name.toLowerCase().includes(query))
+  })
+
+  // Calculate list height based on terminal dimensions
+  const dimensions = useTerminalDimensions()
+  const height = createMemo(() =>
+    Math.min(filteredAgents().length, Math.floor(dimensions().height / 2) - 8),
+  )
+
+  // Initialize selectedIndex to connected agent on mount
+  createEffect(() => {
+    const agentList = filteredAgents()
+    const connectedIndex = agentList.findIndex((a) => a.isConnected)
+    if (connectedIndex >= 0) {
+      setStore("selectedIndex", connectedIndex)
+    }
+  })
+
+  let scrollRef: ScrollBoxRenderable | undefined
 
   onMount(() => {
     dialog.setSize("medium")
@@ -32,7 +87,54 @@ export function DialogAgno() {
       setStore("activeTab", TABS[nextIndex].id)
       evt.preventDefault()
     }
+
+    // Handle agent list navigation when on agents tab and not in detail view
+    if (store.activeTab === "agents" && store.selectedAgent === null) {
+      if (evt.name === "up" || (evt.ctrl && evt.name === "p")) {
+        const agentList = filteredAgents()
+        if (agentList.length === 0) return
+        let next = store.selectedIndex - 1
+        if (next < 0) next = agentList.length - 1
+        setStore("selectedIndex", next)
+        scrollToSelected()
+        evt.preventDefault()
+      }
+      if (evt.name === "down" || (evt.ctrl && evt.name === "n")) {
+        const agentList = filteredAgents()
+        if (agentList.length === 0) return
+        let next = store.selectedIndex + 1
+        if (next >= agentList.length) next = 0
+        setStore("selectedIndex", next)
+        scrollToSelected()
+        evt.preventDefault()
+      }
+      if (evt.name === "return") {
+        const agentList = filteredAgents()
+        const selectedAgent = agentList[store.selectedIndex]
+        if (selectedAgent) {
+          setStore("selectedAgent", { id: selectedAgent.id, name: selectedAgent.name })
+          evt.preventDefault()
+        }
+      }
+    }
   })
+
+  function scrollToSelected() {
+    if (!scrollRef) return
+    const agentList = filteredAgents()
+    const target = scrollRef.getChildren().find((child) => {
+      const index = Number(child.id)
+      return !isNaN(index) && index === store.selectedIndex
+    })
+    if (!target) return
+    const y = target.y - scrollRef.y
+    if (y >= scrollRef.height) {
+      scrollRef.scrollBy(y - scrollRef.height + 1)
+    }
+    if (y < 0) {
+      scrollRef.scrollBy(y)
+    }
+  }
 
   return (
     <box gap={1} paddingBottom={1}>
@@ -90,7 +192,40 @@ export function DialogAgno() {
       {/* Content area based on active tab */}
       <box paddingLeft={4} paddingRight={4} paddingTop={1} minHeight={5}>
         <Show when={store.activeTab === "agents"}>
-          <text fg={theme.textMuted}>Loading agents...</text>
+          <Show
+            when={!store.selectedAgent}
+            fallback={
+              <AgentDetail
+                agent={store.selectedAgent!}
+                onBack={() => setStore("selectedAgent", null)}
+              />
+            }
+          >
+            <Show
+              when={filteredAgents().length > 0}
+              fallback={<text fg={theme.textMuted}>No agents found</text>}
+            >
+              <scrollbox
+                ref={(r: ScrollBoxRenderable) => (scrollRef = r)}
+                maxHeight={height()}
+                scrollbarOptions={{ visible: false }}
+              >
+                <For each={filteredAgents()}>
+                  {(agent, index) => (
+                    <AgentRow
+                      id={String(index())}
+                      agent={agent}
+                      active={index() === store.selectedIndex}
+                      onSelect={() =>
+                        setStore("selectedAgent", { id: agent.id, name: agent.name })
+                      }
+                      onHover={() => setStore("selectedIndex", index())}
+                    />
+                  )}
+                </For>
+              </scrollbox>
+            </Show>
+          </Show>
         </Show>
         <Show when={store.activeTab === "teams"}>
           <text fg={theme.textMuted}>Coming soon</text>
@@ -118,4 +253,62 @@ export function DialogAgno() {
 
 DialogAgno.show = (dialog: DialogContext) => {
   dialog.replace(() => <DialogAgno />)
+}
+
+function AgentRow(props: {
+  id: string
+  agent: { id: string; name: string; isConnected: boolean }
+  active: boolean
+  onSelect: () => void
+  onHover: () => void
+}) {
+  const { theme } = useTheme()
+  const fg = selectedForeground(theme)
+
+  return (
+    <box
+      id={props.id}
+      flexDirection="row"
+      backgroundColor={props.active ? theme.primary : RGBA.fromInts(0, 0, 0, 0)}
+      paddingLeft={props.agent.isConnected ? 1 : 3}
+      paddingRight={3}
+      gap={1}
+      onMouseOver={props.onHover}
+      onMouseUp={props.onSelect}
+    >
+      <Show when={props.agent.isConnected}>
+        <text flexShrink={0} fg={props.active ? fg : theme.primary}>
+          ●
+        </text>
+      </Show>
+      <text
+        flexGrow={1}
+        fg={props.active ? fg : props.agent.isConnected ? theme.primary : theme.text}
+        attributes={props.active ? TextAttributes.BOLD : undefined}
+      >
+        {props.agent.name}
+      </text>
+    </box>
+  )
+}
+
+function AgentDetail(props: { agent: { id: string; name: string }; onBack: () => void }) {
+  const { theme } = useTheme()
+
+  useKeyboard((evt) => {
+    if (evt.name === "escape") {
+      props.onBack()
+      evt.preventDefault()
+    }
+  })
+
+  return (
+    <box flexDirection="column" gap={1}>
+      <text fg={theme.text} attributes={TextAttributes.BOLD}>
+        {props.agent.name}
+      </text>
+      <text fg={theme.textMuted}>Agent details coming in Phase 5</text>
+      <text fg={theme.textMuted}>Press Esc to go back</text>
+    </box>
+  )
 }
