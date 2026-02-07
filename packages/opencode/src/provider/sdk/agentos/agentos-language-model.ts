@@ -41,11 +41,12 @@ function debugLog(message: string, data?: unknown) {
  */
 export interface AgentOSConfig {
   provider: string
+  // TODO(Phase 10): Remove baseURL, apiKey, headers, fetch after continue methods migrate to SDK
   baseURL: string
   apiKey?: string
   headers?: Record<string, string> | (() => Record<string, string>)
   fetch?: typeof fetch
-  getClient?: () => Promise<AgentOSClient>
+  getClient: () => Promise<AgentOSClient>
 }
 
 /**
@@ -93,9 +94,6 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
     const userMessage = this.extractUserMessage(options.prompt)
 
     // Get SDK client
-    if (!this.config.getClient) {
-      throw new Error("AgentOS SDK client not configured")
-    }
     const client = await this.config.getClient()
 
     // Use SDK for non-streaming run
@@ -141,9 +139,6 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
     const userMessage = this.extractUserMessage(options.prompt)
 
     // Get SDK client
-    if (!this.config.getClient) {
-      throw new Error("AgentOS SDK client not configured")
-    }
     const client = await this.config.getClient()
 
     // Use SDK to create streaming run
