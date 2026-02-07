@@ -31,4 +31,7 @@ export type {
   AgentOSRunCompletedEvent,
   AgentOSRunErrorEvent,
   AgentOSErrorResponse,
+  AgentOSPausedState,
+  AgentOSRequirement,
+  AgentOSToolExecution,
 } from "./agentos-types"
