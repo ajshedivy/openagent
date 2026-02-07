@@ -7,6 +7,7 @@ import {
   type LanguageModelV2Content,
 } from "@ai-sdk/provider"
 import { generateId } from "@ai-sdk/provider-utils"
+import type { AgentOSClient } from "@worksofadam/agentos-sdk"
 import type { AgentOSEvent, AgentOSPausedState, AgentOSRequirement } from "./agentos-types"
 import { appendFileSync } from "fs"
 import { join } from "path"
@@ -33,6 +34,7 @@ export interface AgentOSConfig {
   apiKey?: string
   headers?: Record<string, string> | (() => Record<string, string>)
   fetch?: typeof fetch
+  getClient?: () => Promise<AgentOSClient>
 }
 
 /**

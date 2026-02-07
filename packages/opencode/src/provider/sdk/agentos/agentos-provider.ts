@@ -1,6 +1,7 @@
 import type { LanguageModelV2 } from "@ai-sdk/provider"
 import { withoutTrailingSlash } from "@ai-sdk/provider-utils"
 import { AgentOSLanguageModel } from "./agentos-language-model"
+import { getAgentOSClient } from "./agentos-client"
 import type { AgentOSProviderSettings } from "./agentos-types"
 
 // Provider version
@@ -69,6 +70,7 @@ export function createAgentOS(options: AgentOSProviderSettings): AgentOSProvider
       apiKey: options.apiKey,
       headers: getHeaders,
       fetch: options.fetch,
+      getClient: getAgentOSClient,
     })
   }
 
