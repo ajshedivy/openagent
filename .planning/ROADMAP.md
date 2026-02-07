@@ -29,7 +29,7 @@ See `.planning/milestones/v1.1-ROADMAP.md`
 - [x] **Phase 7: SDK Client Foundation** - Install SDK and establish shared client infrastructure
 - [x] **Phase 8: Agent Discovery Migration** - Replace custom fetch-based agent discovery with SDK
 - [x] **Phase 9: Streaming & Language Model Migration** - Replace custom SSE parser with SDK AgentStream
-- [ ] **Phase 10: Tool Confirmation & Run Lifecycle** - Replace custom continue/cancel with SDK methods
+- [x] **Phase 10: Tool Confirmation & Run Lifecycle** - Replace custom continue/cancel with SDK methods
 - [ ] **Phase 11: End-to-End Verification & Type Cleanup** - Remove custom types, verify full workflow
 
 ## Phase Details
@@ -70,8 +70,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 10-01-PLAN.md -- Replace continue/cancel with SDK methods, remove legacy config fields, update provider factory
-- [ ] 10-02-PLAN.md -- Wire abort signal to cancel, clean up SSE types, verify tool confirmation workflow
+- [x] 10-01-PLAN.md -- Replace continue/cancel with SDK methods, remove legacy config fields, update provider factory
+- [x] 10-02-PLAN.md -- Wire abort signal to cancel, clean up SSE types, verify tool confirmation workflow
 
 ### Phase 11: End-to-End Verification & Type Cleanup
 **Goal**: Zero custom AgentOS API types remain and the full agent chat workflow is verified from discovery through completion
@@ -95,9 +95,9 @@ Note: Phase 8 (Discovery) and Phase 9 (Streaming) both depend only on Phase 7 an
 | 7. SDK Client Foundation | v2.0 | 2/2 | Complete | 2026-02-07 |
 | 8. Agent Discovery Migration | v2.0 | 1/1 | Complete | 2026-02-07 |
 | 9. Streaming & Language Model | v2.0 | 2/2 | Complete | 2026-02-07 |
-| 10. Tool Confirmation & Run Lifecycle | v2.0 | 0/2 | Not started | - |
+| 10. Tool Confirmation & Run Lifecycle | v2.0 | 2/2 | Complete | 2026-02-07 |
 | 11. E2E Verification & Type Cleanup | v2.0 | 0/2 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-07*
-*Last updated: 2026-02-07 (Phase 9 complete)*
+*Last updated: 2026-02-07 (Phase 10 complete)*
