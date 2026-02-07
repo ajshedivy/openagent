@@ -45,13 +45,13 @@ Plans:
 - [x] 07-02-PLAN.md -- Integrate health check and SDK error handling, wire provider factory to SDK client
 
 ### Phase 8: Agent Discovery Migration
-**Goal**: Users discover and browse AgentOS agents in the `/agno` hub powered entirely by the SDK client
+**Goal**: Agent discovery pipeline uses SDK types end-to-end, replacing custom AgentOSAgent/AgentOSModelInfo with SDK AgentResponse/ModelResponse
 **Depends on**: Phase 7
 **Requirements**: DISC-01, DISC-02, DISC-03, DISC-04
-**Plans**: TBD
+**Plans:** 1 plan
 
 Plans:
-- [ ] 08-01: Replace agent discovery and type mapping with SDK
+- [ ] 08-01-PLAN.md -- Replace AgentOSAgent and AgentOSModelInfo with SDK type re-exports, update agentToModel to use SDK types directly
 
 ### Phase 9: Streaming & Language Model Migration
 **Goal**: Agent chat streaming is powered entirely by SDK's AgentStream, with events correctly bridged to AI SDK interface
