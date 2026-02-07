@@ -17,10 +17,10 @@ Requirements for v2.0 milestone. Each maps to roadmap phases.
 
 ### Agent Discovery
 
-- [ ] **DISC-01**: Agent discovery plugin uses `client.agents.list()` instead of custom GET `/agents` fetch
-- [ ] **DISC-02**: SDK `AgentResponse` type replaces custom `AgentOSAgent` interface
-- [ ] **DISC-03**: Agent-to-Model mapping updated to use SDK response types
-- [ ] **DISC-04**: `/agno` hub agent list populated from SDK client
+- [x] **DISC-01**: Agent discovery plugin uses `client.agents.list()` instead of custom GET `/agents` fetch
+- [x] **DISC-02**: SDK `AgentResponse` type replaces custom `AgentOSAgent` interface
+- [x] **DISC-03**: Agent-to-Model mapping updated to use SDK response types
+- [x] **DISC-04**: `/agno` hub agent list populated from SDK client
 
 ### Streaming & Language Model
 
@@ -91,10 +91,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | SDK-03 | Phase 7 | Complete |
 | SDK-04 | Phase 7 | Complete |
 | SDK-05 | Phase 7 | Complete |
-| DISC-01 | Phase 8 | Pending |
-| DISC-02 | Phase 8 | Pending |
-| DISC-03 | Phase 8 | Pending |
-| DISC-04 | Phase 8 | Pending |
+| DISC-01 | Phase 8 | Complete |
+| DISC-02 | Phase 8 | Complete |
+| DISC-03 | Phase 8 | Complete |
+| DISC-04 | Phase 8 | Complete |
 | STRM-01 | Phase 9 | Pending |
 | STRM-02 | Phase 9 | Pending |
 | STRM-03 | Phase 9 | Pending |

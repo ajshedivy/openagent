@@ -27,7 +27,7 @@ See `.planning/milestones/v1.1-ROADMAP.md`
 **Milestone Goal:** Replace all custom AgentOS API client code with `@worksofadam/agentos-sdk` and ensure full working agent support end-to-end.
 
 - [x] **Phase 7: SDK Client Foundation** - Install SDK and establish shared client infrastructure
-- [ ] **Phase 8: Agent Discovery Migration** - Replace custom fetch-based agent discovery with SDK
+- [x] **Phase 8: Agent Discovery Migration** - Replace custom fetch-based agent discovery with SDK
 - [ ] **Phase 9: Streaming & Language Model Migration** - Replace custom SSE parser with SDK AgentStream
 - [ ] **Phase 10: Tool Confirmation & Run Lifecycle** - Replace custom continue/cancel with SDK methods
 - [ ] **Phase 11: End-to-End Verification & Type Cleanup** - Remove custom types, verify full workflow
@@ -51,7 +51,7 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 08-01-PLAN.md -- Replace AgentOSAgent and AgentOSModelInfo with SDK type re-exports, update agentToModel to use SDK types directly
+- [x] 08-01-PLAN.md -- Replace AgentOSAgent and AgentOSModelInfo with SDK type re-exports, update agentToModel to use SDK types directly
 
 ### Phase 9: Streaming & Language Model Migration
 **Goal**: Agent chat streaming is powered entirely by SDK's AgentStream, with events correctly bridged to AI SDK interface
@@ -94,7 +94,7 @@ Note: Phase 8 (Discovery) and Phase 9 (Streaming) both depend only on Phase 7 an
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 7. SDK Client Foundation | v2.0 | 2/2 | Complete | 2026-02-07 |
-| 8. Agent Discovery Migration | v2.0 | 0/1 | Not started | - |
+| 8. Agent Discovery Migration | v2.0 | 1/1 | Complete | 2026-02-07 |
 | 9. Streaming & Language Model | v2.0 | 0/3 | Not started | - |
 | 10. Tool Confirmation & Run Lifecycle | v2.0 | 0/2 | Not started | - |
 | 11. E2E Verification & Type Cleanup | v2.0 | 0/2 | Not started | - |
