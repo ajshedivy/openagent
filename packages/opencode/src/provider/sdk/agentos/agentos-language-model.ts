@@ -7,7 +7,18 @@ import {
   type LanguageModelV2Content,
 } from "@ai-sdk/provider"
 import { generateId } from "@ai-sdk/provider-utils"
-import type { AgentOSClient } from "@worksofadam/agentos-sdk"
+import type {
+  AgentOSClient,
+  StreamEvent,
+  RunStartedEvent,
+  RunContentEvent,
+  RunCompletedEvent,
+  RunPausedEvent,
+  RunErrorEvent,
+  ToolCallStartedEvent,
+  ToolCallCompletedEvent,
+  ToolCallData,
+} from "@worksofadam/agentos-sdk"
 import type { AgentOSEvent, AgentOSPausedState, AgentOSRequirement } from "./agentos-types"
 import { appendFileSync } from "fs"
 import { join } from "path"
@@ -119,21 +130,23 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
 
   /**
    * Generate a streaming response.
-   * Transforms AgentOS SSE events to AI SDK stream parts.
+   * Transforms AgentOS SDK AgentStream events to AI SDK stream parts.
    */
   async doStream(
     options: Parameters<LanguageModelV2["doStream"]>[0],
   ): Promise<Awaited<ReturnType<LanguageModelV2["doStream"]>>> {
     const warnings: LanguageModelV2CallWarning[] = []
-
-    // Extract the user message from the prompt
     const userMessage = this.extractUserMessage(options.prompt)
 
-    const { responseHeaders, body } = await this.makeStreamingRequest({
-      agentId: this.modelId,
+    // Get SDK client
+    if (!this.config.getClient) {
+      throw new Error("AgentOS SDK client not configured")
+    }
+    const client = await this.config.getClient()
+
+    // Use SDK to create streaming run
+    const agentStream = await client.agents.runStream(this.modelId, {
       message: userMessage,
-      headers: options.headers,
-      abortSignal: options.abortSignal,
     })
 
     let finishReason: LanguageModelV2FinishReason = "unknown"
@@ -150,230 +163,210 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
 
     const self = this
 
-    // Create a readable stream from the response body
-    const textStream = body.pipeThrough(new TextDecoderStream() as unknown as TransformStream<Uint8Array, string>)
+    // Convert SDK AgentStream (AsyncIterable) to ReadableStream for AI SDK
+    const stream = new ReadableStream<LanguageModelV2StreamPart>({
+      async start(controller) {
+        controller.enqueue({ type: "stream-start", warnings })
+
+        try {
+          for await (const event of agentStream) {
+            debugLog(`AgentOS event: ${event.event}`, event)
+
+            switch (event.event) {
+              case "RunStarted": {
+                const e = event as RunStartedEvent
+                runId = e.run_id || generateId()
+                sessionId = e.session_id || null
+
+                controller.enqueue({
+                  type: "response-metadata",
+                  id: runId,
+                  timestamp: new Date((e.created_at || Date.now() / 1000) * 1000),
+                  modelId: e.model || self.modelId,
+                })
+                break
+              }
+
+              case "RunContent": {
+                const e = event as RunContentEvent
+                const content = typeof e.content === "string" ? e.content : undefined
+                if (content) {
+                  if (!currentTextId) {
+                    currentTextId = generateId()
+                    controller.enqueue({ type: "text-start", id: currentTextId })
+                  }
+                  controller.enqueue({ type: "text-delta", id: currentTextId, delta: content })
+                }
+
+                const reasoningContent = e.reasoning_content
+                if (reasoningContent) {
+                  controller.enqueue({
+                    type: "reasoning-delta",
+                    id: `${runId}:reasoning`,
+                    delta: reasoningContent,
+                  })
+                }
+                break
+              }
+
+              case "ToolCallStarted": {
+                const e = event as ToolCallStartedEvent
+                const toolData = e.tool
+                const toolName = toolData?.tool_name || "unknown"
+                const toolArgs = toolData?.tool_args || {}
+
+                debugLog(`ToolCallStarted: toolName=${toolName}`)
+
+                // Close any open text part first
+                if (currentTextId) {
+                  controller.enqueue({ type: "text-end", id: currentTextId })
+                  currentTextId = null
+                }
+
+                // Format tool call like MCP tools
+                const argsStr = Object.entries(toolArgs)
+                  .map(([k, v]) => {
+                    const valueStr = typeof v === "string" ? v : JSON.stringify(v)
+                    const truncated = valueStr.length > 50 ? valueStr.slice(0, 47) + "..." : valueStr
+                    return `${k}=${truncated}`
+                  })
+                  .join(", ")
+
+                const toolTextId = generateId()
+                controller.enqueue({ type: "text-start", id: toolTextId })
+                controller.enqueue({
+                  type: "text-delta",
+                  id: toolTextId,
+                  delta: `\n⚙ \`${toolName}\`${argsStr ? ` ${argsStr}` : ""}\n`,
+                })
+                controller.enqueue({ type: "text-end", id: toolTextId })
+                break
+              }
+
+              case "ToolCallCompleted": {
+                debugLog(`ToolCallCompleted`)
+                break
+              }
+
+              case "RunCompleted": {
+                const e = event as RunCompletedEvent
+                finishReason = "stop"
+
+                // Extract usage from metrics if available
+                if (e.metrics) {
+                  usage.inputTokens = e.metrics.input_tokens
+                  usage.outputTokens = e.metrics.output_tokens
+                  usage.totalTokens = e.metrics.total_tokens
+                }
+                break
+              }
+
+              case "RunContentCompleted": {
+                if (currentTextId) {
+                  controller.enqueue({ type: "text-end", id: currentTextId })
+                  currentTextId = null
+                }
+                break
+              }
+
+              case "RunPaused": {
+                const e = event as RunPausedEvent
+                debugLog("RunPaused event received", e)
+
+                // Emit any remaining content before pause
+                if (currentTextId) {
+                  controller.enqueue({ type: "text-end", id: currentTextId })
+                  currentTextId = null
+                }
+
+                // Build paused state for processor to handle
+                // The SDK RunPausedEvent has tools?: ToolCallData[]
+                // The API also returns requirements at the top level of the event
+                // Access via index signature since SDK type may not include requirements
+                const requirements = ((event as StreamEvent).requirements as AgentOSRequirement[] | undefined) || []
+                const tools = (e.tools || []) as unknown as AgentOSPausedState["tools"]
+
+                pausedState = {
+                  runId: runId || generateId(),
+                  sessionId: sessionId || "",
+                  agentId: self.modelId,
+                  requirements,
+                  tools,
+                }
+
+                finishReason = "tool-calls"
+                break
+              }
+
+              case "RunError": {
+                const e = event as RunErrorEvent
+                finishReason = "error"
+                const errorMsg = (typeof e.content === "string" ? e.content : undefined) || "Unknown error"
+                controller.enqueue({ type: "error", error: new Error(errorMsg) })
+                break
+              }
+
+              // Informational events - no action needed
+              case "ModelRequestStarted":
+              case "ModelRequestCompleted":
+              case "ModelResponseStarted":
+              case "ModelResponseCompleted":
+              case "ReasoningStarted":
+              case "ReasoningCompleted":
+              case "ParserModelResponseStarted":
+              case "ParserModelResponseCompleted":
+              case "OutputModelResponseStarted":
+              case "OutputModelResponseCompleted": {
+                debugLog(`Informational event: ${event.event}`)
+                break
+              }
+
+              default: {
+                debugLog(`Unknown AgentOS event type: ${event.event}`, event)
+                break
+              }
+            }
+          }
+        } catch (err) {
+          // If stream was aborted, don't enqueue error
+          if (options.abortSignal?.aborted) {
+            controller.close()
+            return
+          }
+          controller.enqueue({ type: "error", error: err instanceof Error ? err : new Error(String(err)) })
+        }
+
+        // Close any open text part
+        if (currentTextId) {
+          controller.enqueue({ type: "text-end", id: currentTextId })
+        }
+
+        // Serialize pausedState for providerMetadata
+        const serializedPausedState = pausedState
+          ? JSON.parse(JSON.stringify(pausedState))
+          : null
+
+        controller.enqueue({
+          type: "finish",
+          finishReason,
+          usage,
+          providerMetadata: {
+            agentos: {
+              runId,
+              sessionId,
+              pausedState: serializedPausedState,
+            },
+          },
+        })
+
+        controller.close()
+      },
+    })
 
     return {
-      stream: textStream
-        .pipeThrough(this.createSSEParser())
-        .pipeThrough(
-          new TransformStream<AgentOSEvent, LanguageModelV2StreamPart>({
-            start(controller) {
-              controller.enqueue({ type: "stream-start", warnings })
-            },
-
-            transform(event, controller) {
-              // Helper to get field with snake_case or camelCase
-              const getField = (obj: Record<string, unknown>, snakeCase: string, camelCase: string) => {
-                return obj[snakeCase] ?? obj[camelCase]
-              }
-
-              const eventType = event.event
-              const eventObj = event as unknown as Record<string, unknown>
-
-              // Log all events for debugging
-              debugLog(`AgentOS event: ${eventType}`, eventObj)
-
-              switch (eventType) {
-                case "RunStarted": {
-                  runId = (getField(eventObj, "run_id", "runId") as string) || generateId()
-                  sessionId = (getField(eventObj, "session_id", "sessionId") as string) || null
-
-                  controller.enqueue({
-                    type: "response-metadata",
-                    id: runId,
-                    timestamp: new Date(((eventObj.created_at as number) || Date.now() / 1000) * 1000),
-                    modelId: (eventObj.model as string) || self.modelId,
-                  })
-                  break
-                }
-
-                case "RunContent": {
-                  // Handle text content
-                  const content = eventObj.content as string | undefined
-                  if (content) {
-                    if (!currentTextId) {
-                      currentTextId = generateId()
-                      controller.enqueue({
-                        type: "text-start",
-                        id: currentTextId,
-                      })
-                    }
-
-                    controller.enqueue({
-                      type: "text-delta",
-                      id: currentTextId,
-                      delta: content,
-                    })
-                  }
-
-                  // Handle reasoning content
-                  const reasoningContent = getField(eventObj, "reasoning_content", "reasoningContent") as
-                    | string
-                    | undefined
-                  if (reasoningContent) {
-                    controller.enqueue({
-                      type: "reasoning-delta",
-                      id: `${runId}:reasoning`,
-                      delta: reasoningContent,
-                    })
-                  }
-                  break
-                }
-
-                case "ToolCallStarted": {
-                  // Tool info can be at top level or nested in 'tool' object
-                  const toolObj = (eventObj.tool as Record<string, unknown>) || eventObj
-                  const toolName =
-                    (getField(toolObj, "tool_name", "toolName") as string) || (toolObj.name as string) || "unknown"
-                  const toolArgs =
-                    (getField(toolObj, "tool_args", "toolArgs") as Record<string, unknown>) ||
-                    (toolObj.args as Record<string, unknown>) ||
-                    {}
-
-                  debugLog(`ToolCallStarted: toolName=${toolName}`)
-
-                  // Close any open text part first
-                  if (currentTextId) {
-                    controller.enqueue({ type: "text-end", id: currentTextId })
-                    currentTextId = null
-                  }
-
-                  // Format tool call like MCP tools: ⚙ tool_name param=value, ...
-                  // Use backticks for the tool name to get code styling
-                  const argsStr = Object.entries(toolArgs)
-                    .map(([k, v]) => {
-                      const valueStr = typeof v === "string" ? v : JSON.stringify(v)
-                      // Truncate long values
-                      const truncated = valueStr.length > 50 ? valueStr.slice(0, 47) + "..." : valueStr
-                      return `${k}=${truncated}`
-                    })
-                    .join(", ")
-
-                  const toolTextId = generateId()
-                  controller.enqueue({ type: "text-start", id: toolTextId })
-                  controller.enqueue({
-                    type: "text-delta",
-                    id: toolTextId,
-                    delta: `\n⚙ \`${toolName}\`${argsStr ? ` ${argsStr}` : ""}\n`,
-                  })
-                  controller.enqueue({ type: "text-end", id: toolTextId })
-                  break
-                }
-
-                case "ToolCallCompleted": {
-                  // Tool executed on the AgentOS server - no need to emit anything
-                  // The agent will continue streaming with the result
-                  debugLog(`ToolCallCompleted`)
-                  break
-                }
-
-                case "RunCompleted": {
-                  finishReason = "stop"
-                  break
-                }
-
-                case "RunContentCompleted": {
-                  // Content stream finished - close any open text part
-                  if (currentTextId) {
-                    controller.enqueue({
-                      type: "text-end",
-                      id: currentTextId,
-                    })
-                    currentTextId = null
-                  }
-                  break
-                }
-
-                case "ModelRequestStarted":
-                case "ModelRequestCompleted":
-                case "ModelResponseStarted":
-                case "ModelResponseCompleted":
-                case "ReasoningStarted":
-                case "ReasoningCompleted": {
-                  // These are informational events - no action needed
-                  debugLog(`Informational event: ${eventType}`)
-                  break
-                }
-
-                case "RunPaused": {
-                  debugLog("RunPaused event received", eventObj)
-
-                  // Emit any content before pause
-                  const pauseContent = eventObj.content as string | undefined
-                  if (pauseContent && currentTextId) {
-                    controller.enqueue({ type: "text-delta", id: currentTextId, delta: pauseContent })
-                  }
-                  if (currentTextId) {
-                    controller.enqueue({ type: "text-end", id: currentTextId })
-                    currentTextId = null
-                  }
-
-                  // Store pause state for processor to handle
-                  pausedState = {
-                    runId: runId || generateId(),
-                    sessionId: sessionId || "",
-                    agentId: self.modelId,
-                    requirements: (eventObj.requirements as AgentOSRequirement[]) || [],
-                    tools: (eventObj.tools as AgentOSPausedState["tools"]) || [],
-                  }
-
-                  // Signal that tools need handling (triggers processor to check providerMetadata)
-                  finishReason = "tool-calls"
-                  break
-                }
-
-                case "RunError": {
-                  finishReason = "error"
-                  const errorMsg = (eventObj.error as string) || "Unknown error"
-                  controller.enqueue({
-                    type: "error",
-                    error: new Error(errorMsg),
-                  })
-                  break
-                }
-
-                default: {
-                  // Log unknown events for debugging
-                  debugLog(`Unknown AgentOS event type: ${eventType}`, eventObj)
-                  break
-                }
-              }
-            },
-
-            flush(controller) {
-              debugLog("Stream flush called", { currentTextId, finishReason, runId, sessionId, pausedState })
-
-              // Close any open text part
-              if (currentTextId) {
-                controller.enqueue({
-                  type: "text-end",
-                  id: currentTextId,
-                })
-              }
-
-              // Serialize pausedState to JSON-compatible format for providerMetadata
-              const serializedPausedState = pausedState
-                ? JSON.parse(JSON.stringify(pausedState))
-                : null
-
-              controller.enqueue({
-                type: "finish",
-                finishReason,
-                usage,
-                providerMetadata: {
-                  agentos: {
-                    runId,
-                    sessionId,
-                    pausedState: serializedPausedState,
-                  },
-                },
-              })
-            },
-          }),
-        ),
+      stream,
       request: { body: { message: userMessage } },
-      response: { headers: responseHeaders },
+      response: { headers: {} },
     }
   }
 
