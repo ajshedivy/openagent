@@ -67,11 +67,11 @@ Plans:
 **Goal**: Tool confirmation pause/continue and run cancellation work end-to-end through the SDK
 **Depends on**: Phase 9
 **Requirements**: TOOL-01, TOOL-02, TOOL-03, TOOL-04, RUN-01
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 10-01: Replace continue/cancel with SDK methods
-- [ ] 10-02: Verify tool confirmation loop end-to-end
+- [ ] 10-01-PLAN.md -- Replace continue/cancel with SDK methods, remove legacy config fields, update provider factory
+- [ ] 10-02-PLAN.md -- Wire abort signal to cancel, clean up SSE types, verify tool confirmation workflow
 
 ### Phase 11: End-to-End Verification & Type Cleanup
 **Goal**: Zero custom AgentOS API types remain and the full agent chat workflow is verified from discovery through completion
