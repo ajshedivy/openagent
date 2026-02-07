@@ -86,37 +86,37 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SDK-01 | — | Pending |
-| SDK-02 | — | Pending |
-| SDK-03 | — | Pending |
-| SDK-04 | — | Pending |
-| SDK-05 | — | Pending |
-| DISC-01 | — | Pending |
-| DISC-02 | — | Pending |
-| DISC-03 | — | Pending |
-| DISC-04 | — | Pending |
-| STRM-01 | — | Pending |
-| STRM-02 | — | Pending |
-| STRM-03 | — | Pending |
-| STRM-04 | — | Pending |
-| STRM-05 | — | Pending |
-| STRM-06 | — | Pending |
-| TOOL-01 | — | Pending |
-| TOOL-02 | — | Pending |
-| TOOL-03 | — | Pending |
-| TOOL-04 | — | Pending |
-| RUN-01 | — | Pending |
-| RUN-02 | — | Pending |
-| RUN-03 | — | Pending |
-| TYPE-01 | — | Pending |
-| TYPE-02 | — | Pending |
-| TYPE-03 | — | Pending |
+| SDK-01 | Phase 7 | Pending |
+| SDK-02 | Phase 7 | Pending |
+| SDK-03 | Phase 7 | Pending |
+| SDK-04 | Phase 7 | Pending |
+| SDK-05 | Phase 7 | Pending |
+| DISC-01 | Phase 8 | Pending |
+| DISC-02 | Phase 8 | Pending |
+| DISC-03 | Phase 8 | Pending |
+| DISC-04 | Phase 8 | Pending |
+| STRM-01 | Phase 9 | Pending |
+| STRM-02 | Phase 9 | Pending |
+| STRM-03 | Phase 9 | Pending |
+| STRM-04 | Phase 9 | Pending |
+| STRM-05 | Phase 9 | Pending |
+| STRM-06 | Phase 9 | Pending |
+| TOOL-01 | Phase 10 | Pending |
+| TOOL-02 | Phase 10 | Pending |
+| TOOL-03 | Phase 10 | Pending |
+| TOOL-04 | Phase 10 | Pending |
+| RUN-01 | Phase 10 | Pending |
+| RUN-02 | Phase 9 | Pending |
+| RUN-03 | Phase 11 | Pending |
+| TYPE-01 | Phase 11 | Pending |
+| TYPE-02 | Phase 11 | Pending |
+| TYPE-03 | Phase 11 | Pending |
 
 **Coverage:**
 - v1 requirements: 25 total
-- Mapped to phases: 0
-- Unmapped: 25 ⚠️
+- Mapped to phases: 25
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-07*
-*Last updated: 2026-02-07 after initial definition*
+*Last updated: 2026-02-07 after roadmap creation (traceability updated)*
