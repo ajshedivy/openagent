@@ -1,5 +1,6 @@
 import type { Hooks, PluginInput } from "@opencode-ai/plugin"
 import type { AgentOSAgent } from "../provider/sdk/agentos/agentos-types"
+import { getAgentOSClient } from "../provider/sdk/agentos/agentos-client"
 import { Config } from "../config/config"
 import { Env } from "../env"
 
@@ -39,36 +40,24 @@ export async function AgentOSAuthPlugin(_input: PluginInput): Promise<Hooks> {
 
         if (!baseURL) return {}
 
-        // Fetch agents from the AgentOS API
-        const agents = await fetchAgents(baseURL, apiKey)
+        // Get SDK client and fetch agents
+        const client = await getAgentOSClient()
+        const agents = await client.agents.list()
 
         // Map each agent to a model in the provider
         if (provider && provider.models) {
           for (const agent of agents) {
-            const model = agentToModel(agent, baseURL)
-            provider.models[agent.id] = model
+            // Cast SDK AgentResponse to custom AgentOSAgent type for compatibility
+            const model = agentToModel(agent as unknown as AgentOSAgent, baseURL)
+            provider.models[agent.id!] = model
           }
         }
 
         // Return options for the provider SDK
+        // Note: SDK handles auth internally, so no custom fetch wrapper needed
         return {
           baseURL,
           apiKey,
-          async fetch(request: RequestInfo | URL, init?: RequestInit) {
-            const headers: Record<string, string> = {
-              ...(init?.headers as Record<string, string>),
-            }
-
-            // Add authorization header if API key is available
-            if (apiKey) {
-              headers["Authorization"] = `Bearer ${apiKey}`
-            }
-
-            return fetch(request, {
-              ...init,
-              headers,
-            })
-          },
         }
       },
 
@@ -83,36 +72,6 @@ export async function AgentOSAuthPlugin(_input: PluginInput): Promise<Hooks> {
         },
       ],
     },
-  }
-}
-
-/**
- * Fetch agents from the AgentOS API
- */
-async function fetchAgents(baseURL: string, apiKey?: string): Promise<AgentOSAgent[]> {
-  const url = `${baseURL.replace(/\/$/, "")}/agents`
-
-  const headers: Record<string, string> = {
-    Accept: "application/json",
-  }
-
-  if (apiKey) {
-    headers["Authorization"] = `Bearer ${apiKey}`
-  }
-
-  try {
-    const response = await fetch(url, { headers })
-
-    if (!response.ok) {
-      console.warn(`Failed to fetch AgentOS agents: ${response.status} ${response.statusText}`)
-      return []
-    }
-
-    const agents = (await response.json()) as AgentOSAgent[]
-    return agents
-  } catch (error) {
-    console.warn("Failed to fetch AgentOS agents:", error)
-    return []
   }
 }
 
