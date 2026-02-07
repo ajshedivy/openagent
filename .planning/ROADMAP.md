@@ -26,7 +26,7 @@ See `.planning/milestones/v1.1-ROADMAP.md`
 
 **Milestone Goal:** Replace all custom AgentOS API client code with `@worksofadam/agentos-sdk` and ensure full working agent support end-to-end.
 
-- [ ] **Phase 7: SDK Client Foundation** - Install SDK and establish shared client infrastructure
+- [x] **Phase 7: SDK Client Foundation** - Install SDK and establish shared client infrastructure
 - [ ] **Phase 8: Agent Discovery Migration** - Replace custom fetch-based agent discovery with SDK
 - [ ] **Phase 9: Streaming & Language Model Migration** - Replace custom SSE parser with SDK AgentStream
 - [ ] **Phase 10: Tool Confirmation & Run Lifecycle** - Replace custom continue/cancel with SDK methods
@@ -41,8 +41,8 @@ See `.planning/milestones/v1.1-ROADMAP.md`
 **Plans:** 2 plans
 
 Plans:
-- [ ] 07-01-PLAN.md -- Install SDK, create shared client singleton, refactor plugin to remove custom fetch
-- [ ] 07-02-PLAN.md -- Integrate health check and SDK error handling, wire provider factory to SDK client
+- [x] 07-01-PLAN.md -- Install SDK, create shared client singleton, refactor plugin to remove custom fetch
+- [x] 07-02-PLAN.md -- Integrate health check and SDK error handling, wire provider factory to SDK client
 
 ### Phase 8: Agent Discovery Migration
 **Goal**: Users discover and browse AgentOS agents in the `/agno` hub powered entirely by the SDK client
@@ -93,7 +93,7 @@ Note: Phase 8 (Discovery) and Phase 9 (Streaming) both depend only on Phase 7 an
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 7. SDK Client Foundation | v2.0 | 0/2 | Planning complete | - |
+| 7. SDK Client Foundation | v2.0 | 2/2 | Complete | 2026-02-07 |
 | 8. Agent Discovery Migration | v2.0 | 0/1 | Not started | - |
 | 9. Streaming & Language Model | v2.0 | 0/3 | Not started | - |
 | 10. Tool Confirmation & Run Lifecycle | v2.0 | 0/2 | Not started | - |
