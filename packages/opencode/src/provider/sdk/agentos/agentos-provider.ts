@@ -1,11 +1,7 @@
 import type { LanguageModelV2 } from "@ai-sdk/provider"
-import { withoutTrailingSlash } from "@ai-sdk/provider-utils"
 import { AgentOSLanguageModel } from "./agentos-language-model"
 import { getAgentOSClient } from "./agentos-client"
 import type { AgentOSProviderSettings } from "./agentos-types"
-
-// Provider version
-const VERSION = "0.1.0"
 
 /**
  * AgentOS provider interface.
@@ -48,28 +44,11 @@ export interface AgentOSProvider {
  * ```
  */
 export function createAgentOS(options: AgentOSProviderSettings): AgentOSProvider {
-  const baseURL = withoutTrailingSlash(options.baseURL)
-
-  if (!baseURL) {
-    throw new Error("AgentOS baseURL is required")
-  }
-
   const providerName = options.name ?? "agentos"
-
-  const getHeaders = (): Record<string, string> => {
-    return {
-      "User-Agent": `opencode/agentos-provider/${VERSION}`,
-      ...options.headers,
-    }
-  }
 
   const createLanguageModel = (agentId: string): LanguageModelV2 => {
     return new AgentOSLanguageModel(agentId, {
       provider: `${providerName}.chat`,
-      baseURL,
-      apiKey: options.apiKey,
-      headers: getHeaders,
-      fetch: options.fetch,
       getClient: getAgentOSClient,
     })
   }
