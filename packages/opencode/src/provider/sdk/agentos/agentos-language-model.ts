@@ -153,6 +153,8 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
     let sessionId: string | null = null
     let currentTextId: string | null = null
     let pausedState: AgentOSPausedState | null = null
+    let runCompleted = false
+    let abortCleanup: (() => void) | null = null
 
     const self = this
 
@@ -178,9 +180,10 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
                   modelId: e.model || self.modelId,
                 })
 
-                // Wire abort signal to cancel run
+                // Wire abort signal to cancel run (only if still in progress)
                 if (options.abortSignal && runId) {
                   const onAbort = () => {
+                    if (runCompleted) return
                     self.cancelRun(runId!).catch((err) => {
                       debugLog("Failed to cancel run", err)
                     })
@@ -189,6 +192,7 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
                     onAbort()
                   } else {
                     options.abortSignal.addEventListener("abort", onAbort, { once: true })
+                    abortCleanup = () => options.abortSignal!.removeEventListener("abort", onAbort)
                   }
                 }
                 break
@@ -257,6 +261,7 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
 
               case "RunCompleted": {
                 const e = event as RunCompletedEvent
+                runCompleted = true
                 finishReason = "stop"
 
                 // Extract usage from metrics if available
@@ -278,6 +283,7 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
 
               case "RunPaused": {
                 const e = event as RunPausedEvent
+                runCompleted = true
                 debugLog("RunPaused event received", e)
 
                 // Emit any remaining content before pause
@@ -307,6 +313,7 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
 
               case "RunError": {
                 const e = event as RunErrorEvent
+                runCompleted = true
                 finishReason = "error"
                 const errorMsg = (typeof e.content === "string" ? e.content : undefined) || "Unknown error"
                 controller.enqueue({ type: "error", error: new Error(errorMsg) })
@@ -342,6 +349,9 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
           }
           controller.enqueue({ type: "error", error: err instanceof Error ? err : new Error(String(err)) })
         }
+
+        // Clean up abort listener since run is done
+        abortCleanup?.()
 
         // Close any open text part
         if (currentTextId) {
