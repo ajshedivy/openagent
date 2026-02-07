@@ -1,42 +1,19 @@
 import { z } from "zod/v4"
+import type { components } from "@worksofadam/agentos-sdk"
 
 // ============================================================================
 // AgentOS API Types
 // ============================================================================
 
 /**
- * Model information from AgentOS agent configuration
+ * Agent response from SDK - replaces custom AgentOSAgent interface
  */
-export interface AgentOSModelInfo {
-  name: string
-  model: string
-  provider: string
-}
+export type AgentResponse = components["schemas"]["AgentResponse"]
 
 /**
- * Agent response from GET /agents endpoint
+ * Model information from SDK - replaces custom AgentOSModelInfo interface
  */
-export interface AgentOSAgent {
-  id: string
-  name: string | null
-  db_id: string | null
-  description: string | null
-  role: string | null
-  model: AgentOSModelInfo | null
-  tools: Record<string, unknown> | null
-  sessions: Record<string, unknown> | null
-  knowledge: Record<string, unknown> | null
-  memory: Record<string, unknown> | null
-  reasoning: Record<string, unknown> | null
-  default_tools: Record<string, unknown> | null
-  system_message: Record<string, unknown> | null
-  extra_messages: Record<string, unknown> | null
-  response_settings: Record<string, unknown> | null
-  introduction: string | null
-  streaming: Record<string, unknown> | null
-  metadata: Record<string, unknown> | null
-  input_schema: Record<string, unknown> | null
-}
+export type ModelResponse = components["schemas"]["ModelResponse"]
 
 // ============================================================================
 // SSE Event Types
