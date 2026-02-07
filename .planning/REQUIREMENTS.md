@@ -9,11 +9,11 @@ Requirements for v2.0 milestone. Each maps to roadmap phases.
 
 ### SDK Client Infrastructure
 
-- [ ] **SDK-01**: `@worksofadam/agentos-sdk` installed as workspace dependency
-- [ ] **SDK-02**: Shared `AgentOSClient` singleton created with baseURL and apiKey resolution from config/env
-- [ ] **SDK-03**: Custom fetch wrapper in plugin removed (SDK handles auth headers internally)
-- [ ] **SDK-04**: SDK health check integrated into provider initialization
-- [ ] **SDK-05**: SDK error hierarchy (APIError, AuthenticationError, etc.) used for error handling
+- [x] **SDK-01**: `@worksofadam/agentos-sdk` installed as workspace dependency
+- [x] **SDK-02**: Shared `AgentOSClient` singleton created with baseURL and apiKey resolution from config/env
+- [x] **SDK-03**: Custom fetch wrapper in plugin removed (SDK handles auth headers internally)
+- [x] **SDK-04**: SDK health check integrated into provider initialization
+- [x] **SDK-05**: SDK error hierarchy (APIError, AuthenticationError, etc.) used for error handling
 
 ### Agent Discovery
 
@@ -86,11 +86,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SDK-01 | Phase 7 | Pending |
-| SDK-02 | Phase 7 | Pending |
-| SDK-03 | Phase 7 | Pending |
-| SDK-04 | Phase 7 | Pending |
-| SDK-05 | Phase 7 | Pending |
+| SDK-01 | Phase 7 | Complete |
+| SDK-02 | Phase 7 | Complete |
+| SDK-03 | Phase 7 | Complete |
+| SDK-04 | Phase 7 | Complete |
+| SDK-05 | Phase 7 | Complete |
 | DISC-01 | Phase 8 | Pending |
 | DISC-02 | Phase 8 | Pending |
 | DISC-03 | Phase 8 | Pending |
