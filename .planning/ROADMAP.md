@@ -38,27 +38,16 @@ See `.planning/milestones/v1.1-ROADMAP.md`
 **Goal**: A shared, configured SDK client is available for all AgentOS operations with proper auth, health checking, and error handling
 **Depends on**: Nothing (first phase of v2.0)
 **Requirements**: SDK-01, SDK-02, SDK-03, SDK-04, SDK-05
-**Success Criteria** (what must be TRUE):
-  1. `@worksofadam/agentos-sdk` is installed and importable from the opencode package
-  2. A single `AgentOSClient` instance is constructed with baseURL/apiKey resolved from existing config and environment variables
-  3. The custom fetch wrapper with manual Authorization header in the plugin is removed (SDK handles auth)
-  4. `client.health()` is called during provider initialization and surfaces connection failures to the user
-  5. SDK error types (APIError, AuthenticationError) are caught and produce meaningful user-facing error messages
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 07-01: Install SDK and create shared client singleton
-- [ ] 07-02: Integrate health check and error handling
+- [ ] 07-01-PLAN.md -- Install SDK, create shared client singleton, refactor plugin to remove custom fetch
+- [ ] 07-02-PLAN.md -- Integrate health check and SDK error handling, wire provider factory to SDK client
 
 ### Phase 8: Agent Discovery Migration
 **Goal**: Users discover and browse AgentOS agents in the `/agno` hub powered entirely by the SDK client
 **Depends on**: Phase 7
 **Requirements**: DISC-01, DISC-02, DISC-03, DISC-04
-**Success Criteria** (what must be TRUE):
-  1. Opening `/agno` hub displays the agent list fetched via `client.agents.list()` (no custom GET `/agents` fetch remains)
-  2. Agent list items display correct name, status, model, and tool count from SDK `AgentResponse` types
-  3. Agent detail view renders all metadata (name, model, tools, description, health) from SDK response types
-  4. Selecting an agent and pressing Enter connects to it (agent-to-model mapping uses SDK types throughout)
 **Plans**: TBD
 
 Plans:
@@ -68,12 +57,6 @@ Plans:
 **Goal**: Agent chat streaming is powered entirely by SDK's AgentStream, with events correctly bridged to AI SDK interface
 **Depends on**: Phase 7
 **Requirements**: STRM-01, STRM-02, STRM-03, STRM-04, STRM-05, STRM-06, RUN-02
-**Success Criteria** (what must be TRUE):
-  1. Sending a message to an agent produces a streaming response via `client.agents.runStream()` with text appearing incrementally in the chat
-  2. The custom `createSSEParser()` TransformStream and `makeStreamingRequest()` FormData code are deleted from the codebase
-  3. `RunPaused` events from AgentStream correctly trigger the tool confirmation prompt in the UI
-  4. `RunCompleted` events from AgentStream signal stream end and usage metadata propagates to the session
-  5. Non-streaming requests work via `client.agents.run()` (replacing `makeNonStreamingRequest()`)
 **Plans**: TBD
 
 Plans:
@@ -85,11 +68,6 @@ Plans:
 **Goal**: Tool confirmation pause/continue and run cancellation work end-to-end through the SDK
 **Depends on**: Phase 9
 **Requirements**: TOOL-01, TOOL-02, TOOL-03, TOOL-04, RUN-01
-**Success Criteria** (what must be TRUE):
-  1. When an agent pauses for tool confirmation, the UI shows the approval prompt with tool name and arguments
-  2. Approving a tool executes `client.agents.continue()` and the response streams back into the chat
-  3. Rejecting/cancelling a tool executes `client.agents.cancel()` and the run terminates cleanly
-  4. Multiple sequential tool confirmations in a single run work correctly (approve first tool, agent continues, pauses again for second tool)
 **Plans**: TBD
 
 Plans:
@@ -100,11 +78,6 @@ Plans:
 **Goal**: Zero custom AgentOS API types remain and the full agent chat workflow is verified from discovery through completion
 **Depends on**: Phase 10
 **Requirements**: TYPE-01, TYPE-02, TYPE-03, RUN-03
-**Success Criteria** (what must be TRUE):
-  1. The file `agentos-types.ts` contains no hand-written Zod schemas (all custom AgentOS event/response schemas removed)
-  2. All modules that reference AgentOS types import them from `@worksofadam/agentos-sdk` (or from a single re-export barrel)
-  3. The full workflow -- discover agent in `/agno` hub, connect, send message, receive streaming response, handle tool confirmation, continue, receive completion -- works without errors
-  4. No references to removed custom types (AgentOSRunStartedEvent, AgentOSRunContentEvent, etc.) exist in the codebase
 **Plans**: TBD
 
 Plans:
@@ -120,7 +93,7 @@ Note: Phase 8 (Discovery) and Phase 9 (Streaming) both depend only on Phase 7 an
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 7. SDK Client Foundation | v2.0 | 0/2 | Not started | - |
+| 7. SDK Client Foundation | v2.0 | 0/2 | Planning complete | - |
 | 8. Agent Discovery Migration | v2.0 | 0/1 | Not started | - |
 | 9. Streaming & Language Model | v2.0 | 0/3 | Not started | - |
 | 10. Tool Confirmation & Run Lifecycle | v2.0 | 0/2 | Not started | - |
