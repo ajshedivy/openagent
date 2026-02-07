@@ -177,6 +177,20 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
                   timestamp: new Date((e.created_at || Date.now() / 1000) * 1000),
                   modelId: e.model || self.modelId,
                 })
+
+                // Wire abort signal to cancel run
+                if (options.abortSignal && runId) {
+                  const onAbort = () => {
+                    self.cancelRun(runId!).catch((err) => {
+                      debugLog("Failed to cancel run", err)
+                    })
+                  }
+                  if (options.abortSignal.aborted) {
+                    onAbort()
+                  } else {
+                    options.abortSignal.addEventListener("abort", onAbort, { once: true })
+                  }
+                }
                 break
               }
 
