@@ -28,7 +28,7 @@ See `.planning/milestones/v1.1-ROADMAP.md`
 
 - [x] **Phase 7: SDK Client Foundation** - Install SDK and establish shared client infrastructure
 - [x] **Phase 8: Agent Discovery Migration** - Replace custom fetch-based agent discovery with SDK
-- [ ] **Phase 9: Streaming & Language Model Migration** - Replace custom SSE parser with SDK AgentStream
+- [x] **Phase 9: Streaming & Language Model Migration** - Replace custom SSE parser with SDK AgentStream
 - [ ] **Phase 10: Tool Confirmation & Run Lifecycle** - Replace custom continue/cancel with SDK methods
 - [ ] **Phase 11: End-to-End Verification & Type Cleanup** - Remove custom types, verify full workflow
 
@@ -60,8 +60,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 09-01-PLAN.md -- Replace streaming/non-streaming requests with SDK AgentStream and run(), adapt event transform, remove custom fetch methods
-- [ ] 09-02-PLAN.md -- Make getClient required in config, simplify provider factory, audit types and update barrel exports
+- [x] 09-01-PLAN.md -- Replace streaming/non-streaming requests with SDK AgentStream and run(), adapt event transform, remove custom fetch methods
+- [x] 09-02-PLAN.md -- Make getClient required in config, simplify provider factory, audit types and update barrel exports
 
 ### Phase 10: Tool Confirmation & Run Lifecycle
 **Goal**: Tool confirmation pause/continue and run cancellation work end-to-end through the SDK
@@ -94,10 +94,10 @@ Note: Phase 8 (Discovery) and Phase 9 (Streaming) both depend only on Phase 7 an
 |-------|-----------|----------------|--------|-----------|
 | 7. SDK Client Foundation | v2.0 | 2/2 | Complete | 2026-02-07 |
 | 8. Agent Discovery Migration | v2.0 | 1/1 | Complete | 2026-02-07 |
-| 9. Streaming & Language Model | v2.0 | 0/2 | Not started | - |
+| 9. Streaming & Language Model | v2.0 | 2/2 | Complete | 2026-02-07 |
 | 10. Tool Confirmation & Run Lifecycle | v2.0 | 0/2 | Not started | - |
 | 11. E2E Verification & Type Cleanup | v2.0 | 0/2 | Not started | - |
 
 ---
 *Roadmap created: 2026-02-07*
-*Last updated: 2026-02-07*
+*Last updated: 2026-02-07 (Phase 9 complete)*

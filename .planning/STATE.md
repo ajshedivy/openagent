@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Connect to AgentOS agents from the terminal with a great user experience
-**Current focus:** v2.0 AgentOS SDK Migration -- Phase 9 (Streaming & Language Model Migration)
+**Current focus:** v2.0 AgentOS SDK Migration -- Phase 10 (Tool Confirmation & Run Lifecycle)
 
 ## Current Position
 
-Phase: 9 of 11 (Streaming & Language Model Migration)
+Phase: 9 of 11 (Streaming & Language Model Migration) -- VERIFIED
 Plan: 2 of 2 in current phase
-Status: Phase complete
-Last activity: 2026-02-07 -- Completed 09-02-PLAN.md
+Status: Phase complete, verified
+Last activity: 2026-02-07 -- Phase 9 verified
 
-Progress: █████░░░░░ 50%
+Progress: ██████░░░░ 60%
 
 ## Milestone History
 
@@ -51,7 +51,7 @@ Progress: █████░░░░░ 50%
 **To refactor:**
 - ~~`packages/opencode/src/provider/sdk/agentos/agentos-language-model.ts`~~ -- ✓ SDK AgentStream (runStream/run) with typed events (continue workflow remains for Phase 10)
 - ~~`packages/opencode/src/provider/sdk/agentos/agentos-provider.ts`~~ -- ✓ Wired to SDK client getter
-- ~~`packages/opencode/src/provider/sdk/agentos/agentos-types.ts`~~ -- ✓ AgentResponse/ModelResponse from SDK (SSE types remain for Phase 9)
+- ~~`packages/opencode/src/provider/sdk/agentos/agentos-types.ts`~~ -- ✓ AgentResponse/ModelResponse from SDK (SSE types remain for Phase 10)
 - ~~`packages/opencode/src/plugin/agentos.ts`~~ -- ✓ Using SDK client with health check & SDK types end-to-end
 - `packages/opencode/src/session/llm.ts` -- continueAgentOS -> SDK client.agents.continue()
 - `packages/opencode/src/session/processor.ts` -- Tool confirmation continue workflow
