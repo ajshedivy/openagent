@@ -9,6 +9,7 @@ import {
 import { generateId } from "@ai-sdk/provider-utils"
 import type {
   AgentOSClient,
+  AgentStream,
   StreamEvent,
   RunStartedEvent,
   RunContentEvent,
@@ -19,7 +20,7 @@ import type {
   ToolCallCompletedEvent,
   ToolCallData,
 } from "@worksofadam/agentos-sdk"
-import type { AgentOSEvent, AgentOSPausedState, AgentOSRequirement } from "./agentos-types"
+import type { AgentOSPausedState, AgentOSRequirement } from "./agentos-types"
 import { appendFileSync } from "fs"
 import { join } from "path"
 
@@ -41,11 +42,6 @@ function debugLog(message: string, data?: unknown) {
  */
 export interface AgentOSConfig {
   provider: string
-  // TODO(Phase 10): Remove baseURL, apiKey, headers, fetch after continue methods migrate to SDK
-  baseURL: string
-  apiKey?: string
-  headers?: Record<string, string> | (() => Record<string, string>)
-  fetch?: typeof fetch
   getClient: () => Promise<AgentOSClient>
 }
 
@@ -395,179 +391,82 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
   }
 
   /**
-   * Build headers for the request
+   * Continue a paused run after tool confirmation using SDK client.agents.continue().
    */
-  private buildHeaders(additionalHeaders?: Record<string, string | undefined>): Record<string, string> {
-    const configHeaders =
-      typeof this.config.headers === "function" ? this.config.headers() : this.config.headers ?? {}
-
-    const headers: Record<string, string> = { ...configHeaders }
-
-    if (this.config.apiKey) {
-      headers["Authorization"] = `Bearer ${this.config.apiKey}`
-    }
-
-    if (additionalHeaders) {
-      for (const [key, value] of Object.entries(additionalHeaders)) {
-        if (value !== undefined) {
-          headers[key] = value
-        }
-      }
-    }
-
-    return headers
-  }
-
-  /**
-   * Make a continue request to resume a paused run after tool confirmation.
-   * Returns the raw response body stream for further processing.
-   */
-  async makeContinueRequest(options: {
+  async continueRun(options: {
     runId: string
     sessionId: string
     requirements: AgentOSRequirement[]
-    headers?: Record<string, string | undefined>
-    abortSignal?: AbortSignal
-  }): Promise<{ responseHeaders: Record<string, string>; body: ReadableStream<Uint8Array> }> {
-    const url = `${this.config.baseURL}/agents/${this.modelId}/runs/${options.runId}/continue`
-
-    const headers = this.buildHeaders(options.headers)
-    // Don't set Content-Type - let FormData set it with boundary
-
-    const fetchFn = this.config.fetch ?? fetch
-
-    // Build tools array from requirements - pass full tool_execution objects
-    // The API expects all fields, not just the confirmation fields
-    const tools = options.requirements.map((req) => req.tool_execution)
-
-    debugLog("makeContinueRequest", {
-      url,
-      sessionId: options.sessionId,
-      tools,
-    })
-
-    // Use FormData like the run endpoint
-    const formData = new FormData()
-    formData.append("tools", JSON.stringify(tools))
-    formData.append("session_id", options.sessionId)
-    formData.append("stream", "true")
-
-    const response = await fetchFn(url, {
-      method: "POST",
-      headers,
-      body: formData,
-      signal: options.abortSignal,
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      let errorMessage = `AgentOS API error: ${response.status} ${response.statusText}`
-      try {
-        const errorJson = JSON.parse(errorText)
-        if (errorJson.detail) {
-          // Handle detail being either a string or an object
-          const detail =
-            typeof errorJson.detail === "string" ? errorJson.detail : JSON.stringify(errorJson.detail)
-          errorMessage = `AgentOS API error: ${detail}`
-        }
-      } catch {
-        if (errorText) {
-          errorMessage = `AgentOS API error: ${errorText}`
-        }
-      }
-      throw new Error(errorMessage)
-    }
-
-    const responseHeaders: Record<string, string> = {}
-    response.headers.forEach((value, key) => {
-      responseHeaders[key] = value
-    })
-
-    if (!response.body) {
-      throw new Error("No response body received from AgentOS continue API")
-    }
-
-    return {
-      responseHeaders,
-      body: response.body,
-    }
-  }
-
-  /**
-   * Process a continue stream and return the accumulated text content.
-   * This consumes the SSE stream and collects all text from RunContent events.
-   */
-  async processContinueStream(options: {
-    body: ReadableStream<Uint8Array>
     abortSignal?: AbortSignal
   }): Promise<{
     text: string
     toolResults: Array<{ toolName: string; toolCallId: string; result: unknown }>
     usage: { inputTokens?: number; outputTokens?: number; totalTokens?: number }
   }> {
-    const textDecoder = new TextDecoderStream()
-    const textStream = options.body.pipeThrough(textDecoder as unknown as TransformStream<Uint8Array, string>)
-    const eventStream = textStream.pipeThrough(this.createSSEParser())
+    const client = await this.config.getClient()
 
-    const reader = eventStream.getReader()
+    // Build tools JSON from requirements (pass full tool_execution objects)
+    const tools = options.requirements.map((req) => req.tool_execution)
+    const toolsJSON = JSON.stringify(tools)
+
+    debugLog("continueRun", {
+      agentId: this.modelId,
+      runId: options.runId,
+      sessionId: options.sessionId,
+      tools,
+    })
+
+    // Use SDK continue method (returns AgentStream when streaming)
+    const stream = (await client.agents.continue(this.modelId, options.runId, {
+      tools: toolsJSON,
+      sessionId: options.sessionId,
+      stream: true,
+    })) as AgentStream
+
+    // Accumulate results from stream (same pattern as doStream event handling)
     let text = ""
     const toolResults: Array<{ toolName: string; toolCallId: string; result: unknown }> = []
     const usage: { inputTokens?: number; outputTokens?: number; totalTokens?: number } = {}
 
-    try {
-      while (true) {
-        if (options.abortSignal?.aborted) {
+    for await (const event of stream) {
+      if (options.abortSignal?.aborted) break
+
+      debugLog(`Continue stream event: ${event.event}`, event)
+
+      switch (event.event) {
+        case "RunContent": {
+          const e = event as RunContentEvent
+          const content = typeof e.content === "string" ? e.content : undefined
+          if (content) text += content
           break
         }
-
-        const { done, value } = await reader.read()
-        if (done) break
-
-        const event = value as AgentOSEvent
-        debugLog("Continue stream event", event)
-
-        switch (event.event) {
-          case "RunContent": {
-            const content = (event as unknown as { content: string }).content
-            if (content) {
-              text += content
-            }
-            break
-          }
-
-          case "ToolCallCompleted": {
-            const toolEvent = event as unknown as {
-              tool_call_id: string
-              tool_name: string
-              result: unknown
-            }
+        case "ToolCallCompleted": {
+          const e = event as ToolCallCompletedEvent
+          const toolData = e.tool
+          if (toolData) {
             toolResults.push({
-              toolName: toolEvent.tool_name,
-              toolCallId: toolEvent.tool_call_id,
-              result: toolEvent.result,
+              toolName: toolData.tool_name,
+              toolCallId: toolData.tool_call_id,
+              result: toolData.result,
             })
-            break
           }
-
-          case "ModelRequestCompleted": {
-            const usageEvent = event as unknown as {
-              input_tokens?: number
-              output_tokens?: number
-              total_tokens?: number
-            }
-            usage.inputTokens = usageEvent.input_tokens
-            usage.outputTokens = usageEvent.output_tokens
-            usage.totalTokens = usageEvent.total_tokens
-            break
+          break
+        }
+        case "RunCompleted": {
+          const e = event as RunCompletedEvent
+          if (e.metrics) {
+            usage.inputTokens = e.metrics.input_tokens
+            usage.outputTokens = e.metrics.output_tokens
+            usage.totalTokens = e.metrics.total_tokens
           }
-
-          case "RunCompleted":
-            debugLog("Continue stream completed")
-            break
+          break
+        }
+        case "RunError": {
+          const e = event as RunErrorEvent
+          const errorMsg = (typeof e.content === "string" ? e.content : undefined) || "Unknown error"
+          throw new Error(`AgentOS continue error: ${errorMsg}`)
         }
       }
-    } finally {
-      reader.releaseLock()
     }
 
     debugLog("Continue stream processed", { textLength: text.length, toolResultsCount: toolResults.length, usage })
@@ -576,67 +475,10 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
   }
 
   /**
-   * Create a TransformStream that parses SSE events from a text stream
+   * Cancel an active run using SDK client.agents.cancel().
    */
-  private createSSEParser(): TransformStream<string, AgentOSEvent> {
-    let buffer = ""
-
-    return new TransformStream<string, AgentOSEvent>({
-      transform(chunk, controller) {
-        buffer += chunk
-
-        // Split on double newlines (SSE event delimiter)
-        const events = buffer.split("\n\n")
-
-        // Keep the last part in buffer (it might be incomplete)
-        buffer = events.pop() || ""
-
-        for (const eventText of events) {
-          if (!eventText.trim()) continue
-
-          let eventData = ""
-
-          for (const line of eventText.split("\n")) {
-            if (line.startsWith("data:")) {
-              eventData = line.slice(5).trim()
-            }
-            // event: line is present but we get event type from the data JSON
-          }
-
-          if (eventData) {
-            try {
-              const parsed = JSON.parse(eventData) as AgentOSEvent
-              controller.enqueue(parsed)
-            } catch {
-              // Skip malformed JSON
-              console.warn("Failed to parse AgentOS SSE event:", eventData)
-            }
-          }
-        }
-      },
-
-      flush(controller) {
-        // Process any remaining buffer content
-        if (buffer.trim()) {
-          const lines = buffer.split("\n")
-          let eventData = ""
-
-          for (const line of lines) {
-            if (line.startsWith("data:")) {
-              eventData = line.slice(5).trim()
-            }
-          }
-
-          if (eventData) {
-            try {
-              const parsed = JSON.parse(eventData) as AgentOSEvent
-              controller.enqueue(parsed)
-            } catch {
-              // Skip malformed JSON
-            }
-          }
-        }
-      },
-    })
+  async cancelRun(runId: string): Promise<void> {
+    const client = await this.config.getClient()
+    await client.agents.cancel(this.modelId, runId)
   }
 }
