@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-07)
 
 ## Current Position
 
-Phase: 9 of 11 (Streaming & Language Model Migration) -- VERIFIED
-Plan: 2 of 2 in current phase
-Status: Phase complete, verified
-Last activity: 2026-02-07 -- Phase 9 verified
+Phase: 10 of 11 (Tool Confirmation & Run Lifecycle)
+Plan: 1 of 1 in current phase
+Status: Phase complete
+Last activity: 2026-02-07 -- Completed 10-01-PLAN.md
 
-Progress: ██████░░░░ 60%
+Progress: ██████░░░░ 70%
 
 ## Milestone History
 
@@ -39,9 +39,9 @@ Progress: ██████░░░░ 60%
 
 **v2.0:**
 - Phases: 5 (7-11)
-- Plans: 10 estimated (5 complete)
-- Requirements: 15/25 satisfied
-- Duration: 23min 46s total (5min plan 07-01, 2min 52s plan 07-02, 6min 59s plan 08-01, 6min 41s plan 09-01, 2min plan 09-02)
+- Plans: 10 estimated (6 complete)
+- Requirements: 18/25 satisfied
+- Duration: 34min 23s total (5min plan 07-01, 2min 52s plan 07-02, 6min 59s plan 08-01, 6min 41s plan 09-01, 2min plan 09-02, 10min 37s plan 10-01)
 
 ## Key Files (v2.0 targets)
 
@@ -49,12 +49,12 @@ Progress: ██████░░░░ 60%
 - `packages/opencode/src/provider/sdk/agentos/agentos-client.ts` -- SDK client singleton
 
 **To refactor:**
-- ~~`packages/opencode/src/provider/sdk/agentos/agentos-language-model.ts`~~ -- ✓ SDK AgentStream (runStream/run) with typed events (continue workflow remains for Phase 10)
-- ~~`packages/opencode/src/provider/sdk/agentos/agentos-provider.ts`~~ -- ✓ Wired to SDK client getter
-- ~~`packages/opencode/src/provider/sdk/agentos/agentos-types.ts`~~ -- ✓ AgentResponse/ModelResponse from SDK (SSE types remain for Phase 10)
-- ~~`packages/opencode/src/plugin/agentos.ts`~~ -- ✓ Using SDK client with health check & SDK types end-to-end
-- `packages/opencode/src/session/llm.ts` -- continueAgentOS -> SDK client.agents.continue()
-- `packages/opencode/src/session/processor.ts` -- Tool confirmation continue workflow
+- ~~`packages/opencode/src/provider/sdk/agentos/agentos-language-model.ts`~~ -- ✓ SDK-only (no custom HTTP)
+- ~~`packages/opencode/src/provider/sdk/agentos/agentos-provider.ts`~~ -- ✓ Minimal config (provider + getClient)
+- ~~`packages/opencode/src/provider/sdk/agentos/agentos-types.ts`~~ -- ✓ SDK types end-to-end
+- ~~`packages/opencode/src/plugin/agentos.ts`~~ -- ✓ SDK client with health check
+- ~~`packages/opencode/src/session/llm.ts`~~ -- ✓ continueAgentOS uses SDK continueRun()
+- `packages/opencode/src/session/processor.ts` -- Tool confirmation workflow (Phase 11)
 
 ## Accumulated Context
 
@@ -74,14 +74,14 @@ Progress: ██████░░░░ 60%
 - Plugin loader returns {} on errors to allow other providers to work
 - Provider factory passes SDK client getter (not raw config) to language model
 - getClient field required in AgentOSConfig - SDK client is sole transport
-- Legacy config fields (baseURL, apiKey, headers, fetch) preserved for Phase 10 continue methods
-- All SSE types preserved in agentos-types.ts for Phase 10 continue methods
 - Barrel exports expanded to include AgentOSPausedState, AgentOSRequirement, AgentOSToolExecution
 - RunPaused requirements accessed via StreamEvent index signature (SDK type doesn't expose directly)
 - RunError content field (not error field) contains error message
 - Usage metrics extracted from SDK RunCompleted.metrics (input_tokens, output_tokens, total_tokens)
 - AsyncIterable<StreamEvent> converted to ReadableStream<LanguageModelV2StreamPart> pattern
-- Phase 10 continue methods (buildHeaders, createSSEParser, makeContinueRequest) preserved during streaming migration
+- Phase 10: continueRun() and cancelRun() methods use SDK client.agents.continue/cancel
+- AgentOSConfig minimal interface (provider + getClient) - no HTTP fields
+- All custom HTTP code removed from language model (~160 LOC reduction)
 
 ### Pending Todos
 
@@ -93,9 +93,9 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-07 22:04:58 UTC
-Stopped at: Completed 09-02-PLAN.md (Streaming & Language Model Migration - Phase Complete)
+Last session: 2026-02-07 22:52:23 UTC
+Stopped at: Completed 10-01-PLAN.md (Tool Confirmation & Run Lifecycle - Phase Complete)
 Resume file: None
 
 ---
-*State updated: 2026-02-07 -- Phase 9 Complete (09-02)*
+*State updated: 2026-02-07 -- Phase 10 Complete (10-01)*
