@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Connect to AgentOS agents from the terminal with a great user experience
-**Current focus:** v2.0 AgentOS SDK Migration -- Phase 7 (SDK Client Foundation)
+**Current focus:** v2.0 AgentOS SDK Migration -- Phase 8 (Agent Discovery Migration)
 
 ## Current Position
 
-Phase: 7 of 11 (SDK Client Foundation)
-Plan: 2 of 2 in current phase
+Phase: 8 of 11 (Agent Discovery Migration)
+Plan: 1 of 1 in current phase
 Status: Phase complete
-Last activity: 2026-02-07 -- Completed 07-02-PLAN.md
+Last activity: 2026-02-07 -- Completed 08-01-PLAN.md
 
-Progress: ██░░░░░░░░ 20%
+Progress: ███░░░░░░░ 30%
 
 ## Milestone History
 
@@ -39,9 +39,9 @@ Progress: ██░░░░░░░░ 20%
 
 **v2.0:**
 - Phases: 5 (7-11)
-- Plans: 10 estimated (2 complete)
-- Requirements: 5/25 satisfied
-- Duration: 8min 6s total (5min plan 07-01, 2min 52s plan 07-02)
+- Plans: 10 estimated (3 complete)
+- Requirements: 9/25 satisfied
+- Duration: 15min 5s total (5min plan 07-01, 2min 52s plan 07-02, 6min 59s plan 08-01)
 
 ## Key Files (v2.0 targets)
 
@@ -51,8 +51,8 @@ Progress: ██░░░░░░░░ 20%
 **To refactor:**
 - `packages/opencode/src/provider/sdk/agentos/agentos-language-model.ts` -- Custom SSE/fetch -> SDK AgentStream
 - ~~`packages/opencode/src/provider/sdk/agentos/agentos-provider.ts`~~ -- ✓ Wired to SDK client getter
-- `packages/opencode/src/provider/sdk/agentos/agentos-types.ts` -- Hand-written types -> SDK types
-- ~~`packages/opencode/src/plugin/agentos.ts`~~ -- ✓ Using SDK client with health check & error handling
+- ~~`packages/opencode/src/provider/sdk/agentos/agentos-types.ts`~~ -- ✓ AgentResponse/ModelResponse from SDK (SSE types remain for Phase 9)
+- ~~`packages/opencode/src/plugin/agentos.ts`~~ -- ✓ Using SDK client with health check & SDK types end-to-end
 - `packages/opencode/src/session/llm.ts` -- continueAgentOS -> SDK client.agents.continue()
 - `packages/opencode/src/session/processor.ts` -- Tool confirmation continue workflow
 
@@ -67,7 +67,8 @@ Progress: ██░░░░░░░░ 20%
 - SDK client uses singleton pattern with lazy initialization
 - Config resolution: baseURL (config → env), apiKey (auth → env → config)
 - Custom fetch wrapper removed - SDK handles auth internally
-- Type compatibility: Cast SDK AgentResponse to AgentOSAgent until Phase 11
+- SDK types accessed via `components["schemas"]` pattern (OpenAPI-generated types)
+- Non-null assertions for API-guaranteed fields (agent.id) acceptable during migration
 - Health check runs before agent discovery for fail-fast initialization
 - SDK error types produce actionable messages (auth, API, connection)
 - Plugin loader returns {} on errors to allow other providers to work
@@ -84,9 +85,9 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-07 20:54:17 UTC
-Stopped at: Completed 07-02-PLAN.md (SDK Client Foundation - Phase complete)
+Last session: 2026-02-07 21:28:36 UTC
+Stopped at: Completed 08-01-PLAN.md (Agent Discovery Migration - Phase complete)
 Resume file: None
 
 ---
-*State updated: 2026-02-07 -- Phase 7 Complete (Plans 07-01, 07-02)*
+*State updated: 2026-02-07 -- Phase 8 Complete (Plan 08-01)*
