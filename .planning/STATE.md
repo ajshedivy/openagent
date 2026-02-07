@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Connect to AgentOS agents from the terminal with a great user experience
-**Current focus:** v2.0 AgentOS SDK Migration -- Phase 8 (Agent Discovery Migration)
+**Current focus:** v2.0 AgentOS SDK Migration -- Phase 9 (Streaming & Language Model Migration)
 
 ## Current Position
 
-Phase: 8 of 11 (Agent Discovery Migration)
-Plan: 1 of 1 in current phase
-Status: Phase complete
-Last activity: 2026-02-07 -- Completed 08-01-PLAN.md
+Phase: 9 of 11 (Streaming & Language Model Migration)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-02-07 -- Completed 09-01-PLAN.md
 
-Progress: ███░░░░░░░ 30%
+Progress: ████░░░░░░ 40%
 
 ## Milestone History
 
@@ -39,9 +39,9 @@ Progress: ███░░░░░░░ 30%
 
 **v2.0:**
 - Phases: 5 (7-11)
-- Plans: 10 estimated (3 complete)
-- Requirements: 9/25 satisfied
-- Duration: 15min 5s total (5min plan 07-01, 2min 52s plan 07-02, 6min 59s plan 08-01)
+- Plans: 10 estimated (4 complete)
+- Requirements: 13/25 satisfied
+- Duration: 21min 46s total (5min plan 07-01, 2min 52s plan 07-02, 6min 59s plan 08-01, 6min 41s plan 09-01)
 
 ## Key Files (v2.0 targets)
 
@@ -49,7 +49,7 @@ Progress: ███░░░░░░░ 30%
 - `packages/opencode/src/provider/sdk/agentos/agentos-client.ts` -- SDK client singleton
 
 **To refactor:**
-- `packages/opencode/src/provider/sdk/agentos/agentos-language-model.ts` -- Custom SSE/fetch -> SDK AgentStream
+- ~~`packages/opencode/src/provider/sdk/agentos/agentos-language-model.ts`~~ -- ✓ SDK AgentStream (runStream/run) with typed events (continue workflow remains for Phase 10)
 - ~~`packages/opencode/src/provider/sdk/agentos/agentos-provider.ts`~~ -- ✓ Wired to SDK client getter
 - ~~`packages/opencode/src/provider/sdk/agentos/agentos-types.ts`~~ -- ✓ AgentResponse/ModelResponse from SDK (SSE types remain for Phase 9)
 - ~~`packages/opencode/src/plugin/agentos.ts`~~ -- ✓ Using SDK client with health check & SDK types end-to-end
@@ -74,6 +74,11 @@ Progress: ███░░░░░░░ 30%
 - Plugin loader returns {} on errors to allow other providers to work
 - Provider factory passes SDK client getter (not raw config) to language model
 - getClient field optional in AgentOSConfig for progressive migration
+- RunPaused requirements accessed via StreamEvent index signature (SDK type doesn't expose directly)
+- RunError content field (not error field) contains error message
+- Usage metrics extracted from SDK RunCompleted.metrics (input_tokens, output_tokens, total_tokens)
+- AsyncIterable<StreamEvent> converted to ReadableStream<LanguageModelV2StreamPart> pattern
+- Phase 10 continue methods (buildHeaders, createSSEParser, makeContinueRequest) preserved during streaming migration
 
 ### Pending Todos
 
@@ -85,9 +90,9 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-07 21:28:36 UTC
-Stopped at: Completed 08-01-PLAN.md (Agent Discovery Migration - Phase complete)
+Last session: 2026-02-07 22:20:44 UTC
+Stopped at: Completed 09-01-PLAN.md (Streaming & Language Model Migration)
 Resume file: None
 
 ---
-*State updated: 2026-02-07 -- Phase 8 Complete (Plan 08-01)*
+*State updated: 2026-02-07 -- Phase 9 Plan 1 Complete (09-01)*
