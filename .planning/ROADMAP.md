@@ -57,12 +57,11 @@ Plans:
 **Goal**: Agent chat streaming is powered entirely by SDK's AgentStream, with events correctly bridged to AI SDK interface
 **Depends on**: Phase 7
 **Requirements**: STRM-01, STRM-02, STRM-03, STRM-04, STRM-05, STRM-06, RUN-02
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 09-01: Replace streaming request with SDK AgentStream
-- [ ] 09-02: Map AgentStream events to AI SDK LanguageModelV2StreamPart
-- [ ] 09-03: Wire provider factory and clean up non-streaming path
+- [ ] 09-01-PLAN.md -- Replace streaming/non-streaming requests with SDK AgentStream and run(), adapt event transform, remove custom fetch methods
+- [ ] 09-02-PLAN.md -- Make getClient required in config, simplify provider factory, audit types and update barrel exports
 
 ### Phase 10: Tool Confirmation & Run Lifecycle
 **Goal**: Tool confirmation pause/continue and run cancellation work end-to-end through the SDK
@@ -95,7 +94,7 @@ Note: Phase 8 (Discovery) and Phase 9 (Streaming) both depend only on Phase 7 an
 |-------|-----------|----------------|--------|-----------|
 | 7. SDK Client Foundation | v2.0 | 2/2 | Complete | 2026-02-07 |
 | 8. Agent Discovery Migration | v2.0 | 1/1 | Complete | 2026-02-07 |
-| 9. Streaming & Language Model | v2.0 | 0/3 | Not started | - |
+| 9. Streaming & Language Model | v2.0 | 0/2 | Not started | - |
 | 10. Tool Confirmation & Run Lifecycle | v2.0 | 0/2 | Not started | - |
 | 11. E2E Verification & Type Cleanup | v2.0 | 0/2 | Not started | - |
 
