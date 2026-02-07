@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-01)
+See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Connect to AgentOS agents from the terminal with a great user experience
-**Current focus:** v1.1 complete — ready for v1.2 Teams & Workflows
+**Current focus:** v2.0 AgentOS SDK Migration
 
 ## Current Position
 
-Phase: Milestone complete
-Plan: N/A
-Status: Ready for next milestone
-Last activity: 2026-02-01 — v1.1 AgentOS Hub archived
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-07 — Milestone v2.0 started
 
-Progress: [===================] v1.1 complete (4/4 phases)
+Progress: ░░░░░░░░░░ 0%
 
 ## Milestone History
 
@@ -36,15 +36,15 @@ Progress: [===================] v1.1 complete (4/4 phases)
 - Requirements: 19/19 satisfied
 - Duration: Same-day
 
-## Key Files (v1.1)
+## Key Files (v2.0 targets)
 
-**Created:**
-- `packages/opencode/src/cli/cmd/tui/component/dialog-agno.tsx` - AgentOS Hub component
-
-**Modified:**
-- `packages/opencode/src/cli/cmd/tui/app.tsx` - /agno command registration
-- `packages/app/src/components/dialog-select-model.tsx` - AgentOS filtering
-- `packages/opencode/src/cli/cmd/tui/component/dialog-model.tsx` - AgentOS filtering
+**To refactor:**
+- `packages/opencode/src/provider/sdk/agentos/agentos-language-model.ts` — Custom SSE parser, fetch calls → SDK AgentStream
+- `packages/opencode/src/provider/sdk/agentos/agentos-provider.ts` — Provider factory → SDK client
+- `packages/opencode/src/provider/sdk/agentos/agentos-types.ts` — Hand-written types → SDK types
+- `packages/opencode/src/plugin/agentos.ts` — Custom agent discovery → SDK client.agents.list()
+- `packages/opencode/src/session/llm.ts` — continueAgentOS → SDK client.agents.continue()
+- `packages/opencode/src/session/processor.ts` — Tool confirmation continue workflow
 
 ## Accumulated Context
 
@@ -57,6 +57,13 @@ Key patterns established:
 - Enter = quick action, Ctrl+key = secondary action
 - Provider filtering early in data pipeline
 
+### v2.0 Context
+
+- SDK: `@worksofadam/agentos-sdk@0.3.0` (published 2026-02-07)
+- SDK provides: AgentOSClient, AgentStream, typed resources for agents/teams/workflows/sessions/etc.
+- Strategy: Keep AI SDK bridge (AgentStream → LanguageModelV2StreamPart)
+- Teams/Workflows hub deferred — SDK makes future addition trivial
+
 ### Pending Todos
 
 None.
@@ -67,8 +74,8 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-01
-Stopped at: v1.1 milestone archived
+Last session: 2026-02-07
+Stopped at: Defining v2.0 requirements
 Resume file: None
 
 Config (if exists):
@@ -88,4 +95,4 @@ Config (if exists):
 ```
 
 ---
-*State updated: 2026-02-01 — v1.1 Milestone Archived*
+*State updated: 2026-02-07 — Milestone v2.0 Started*
