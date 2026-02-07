@@ -1,5 +1,5 @@
 import type { Hooks, PluginInput } from "@opencode-ai/plugin"
-import type { AgentOSAgent } from "../provider/sdk/agentos/agentos-types"
+import type { AgentResponse } from "../provider/sdk/agentos/agentos-types"
 import { getAgentOSClient } from "../provider/sdk/agentos/agentos-client"
 import { APIError, AuthenticationError } from "@worksofadam/agentos-sdk"
 import { Config } from "../config/config"
@@ -81,8 +81,7 @@ export async function AgentOSAuthPlugin(_input: PluginInput): Promise<Hooks> {
           // Map each agent to a model in the provider
           if (provider && provider.models) {
             for (const agent of agents) {
-              // Cast SDK AgentResponse to custom AgentOSAgent type for compatibility
-              const model = agentToModel(agent as unknown as AgentOSAgent, baseURL)
+              const model = agentToModel(agent, baseURL)
               provider.models[agent.id!] = model
             }
           }
@@ -123,7 +122,7 @@ export async function AgentOSAuthPlugin(_input: PluginInput): Promise<Hooks> {
  * Convert an AgentOS agent to an OpenCode provider model
  */
 function agentToModel(
-  agent: AgentOSAgent,
+  agent: AgentResponse,
   baseURL: string,
 ): {
   id: string
@@ -152,11 +151,11 @@ function agentToModel(
   const hasReasoning = !!(agent.reasoning && Object.keys(agent.reasoning).length > 0)
 
   return {
-    id: agent.id,
+    id: agent.id!,
     providerID: "agentos",
-    name: agent.name || agent.id,
+    name: agent.name || agent.id!,
     api: {
-      id: agent.id,
+      id: agent.id!,
       url: baseURL,
       npm: "@opencode/agentos",
     },
