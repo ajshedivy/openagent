@@ -81,7 +81,7 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
 
   /**
    * Generate a non-streaming response.
-   * Collects all streaming events and returns the final result.
+   * Uses SDK client.agents.run() for synchronous agent communication.
    */
   async doGenerate(
     options: Parameters<LanguageModelV2["doGenerate"]>[0],
@@ -90,40 +90,42 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
     const content: LanguageModelV2Content[] = []
     let finishReason: LanguageModelV2FinishReason = "unknown"
 
-    // Extract the user message from the prompt
     const userMessage = this.extractUserMessage(options.prompt)
 
-    const { responseHeaders, response } = await this.makeNonStreamingRequest({
-      agentId: this.modelId,
+    // Get SDK client
+    if (!this.config.getClient) {
+      throw new Error("AgentOS SDK client not configured")
+    }
+    const client = await this.config.getClient()
+
+    // Use SDK for non-streaming run
+    const result = await client.agents.run(this.modelId, {
       message: userMessage,
-      headers: options.headers,
-      abortSignal: options.abortSignal,
     })
 
-    if (response.error) {
-      throw new Error(response.error)
-    }
-
-    if (response.content) {
-      content.push({
-        type: "text",
-        text: response.content,
-      })
+    // Extract content from RunSchema result
+    const responseContent = result.content
+    if (responseContent) {
+      const text = typeof responseContent === "string"
+        ? responseContent
+        : JSON.stringify(responseContent)
+      content.push({ type: "text", text })
       finishReason = "stop"
     }
+
+    // Extract usage from metrics if available
+    const metrics = result.metrics as { input_tokens?: number; output_tokens?: number; total_tokens?: number } | undefined
 
     return {
       content,
       finishReason,
       usage: {
-        inputTokens: undefined,
-        outputTokens: undefined,
-        totalTokens: undefined,
+        inputTokens: metrics?.input_tokens,
+        outputTokens: metrics?.output_tokens,
+        totalTokens: metrics?.total_tokens,
       },
       request: { body: { message: userMessage } },
-      response: {
-        headers: responseHeaders,
-      },
+      response: { headers: {} },
       warnings,
     }
   }
@@ -419,155 +421,6 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
     }
 
     return headers
-  }
-
-  /**
-   * Make a streaming request to the AgentOS API
-   */
-  private async makeStreamingRequest(options: {
-    agentId: string
-    message: string
-    sessionId?: string
-    userId?: string
-    headers?: Record<string, string | undefined>
-    abortSignal?: AbortSignal
-  }): Promise<{ responseHeaders: Record<string, string>; body: ReadableStream<Uint8Array> }> {
-    const url = `${this.config.baseURL}/agents/${options.agentId}/runs`
-
-    // Build form data (AgentOS uses multipart/form-data)
-    const formData = new FormData()
-    formData.append("message", options.message)
-    formData.append("stream", "true")
-
-    if (options.sessionId) {
-      formData.append("session_id", options.sessionId)
-    }
-    if (options.userId) {
-      formData.append("user_id", options.userId)
-    }
-
-    const headers = this.buildHeaders(options.headers)
-    const fetchFn = this.config.fetch ?? fetch
-
-    const response = await fetchFn(url, {
-      method: "POST",
-      headers,
-      body: formData,
-      signal: options.abortSignal,
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      let errorMessage = `AgentOS API error: ${response.status} ${response.statusText}`
-      try {
-        const errorJson = JSON.parse(errorText)
-        if (errorJson.detail) {
-          // Handle detail being either a string or an object
-          const detail =
-            typeof errorJson.detail === "string" ? errorJson.detail : JSON.stringify(errorJson.detail)
-          errorMessage = `AgentOS API error: ${detail}`
-        }
-      } catch {
-        if (errorText) {
-          errorMessage = `AgentOS API error: ${errorText}`
-        }
-      }
-      throw new Error(errorMessage)
-    }
-
-    const responseHeaders: Record<string, string> = {}
-    response.headers.forEach((value, key) => {
-      responseHeaders[key] = value
-    })
-
-    if (!response.body) {
-      throw new Error("No response body received from AgentOS API")
-    }
-
-    return {
-      responseHeaders,
-      body: response.body,
-    }
-  }
-
-  /**
-   * Make a non-streaming request to the AgentOS API
-   */
-  private async makeNonStreamingRequest(options: {
-    agentId: string
-    message: string
-    sessionId?: string
-    userId?: string
-    headers?: Record<string, string | undefined>
-    abortSignal?: AbortSignal
-  }): Promise<{
-    responseHeaders: Record<string, string>
-    response: {
-      content?: string
-      run_id?: string
-      session_id?: string
-      error?: string
-    }
-  }> {
-    const url = `${this.config.baseURL}/agents/${options.agentId}/runs`
-
-    // Build form data (AgentOS uses multipart/form-data)
-    const formData = new FormData()
-    formData.append("message", options.message)
-    formData.append("stream", "false")
-
-    if (options.sessionId) {
-      formData.append("session_id", options.sessionId)
-    }
-    if (options.userId) {
-      formData.append("user_id", options.userId)
-    }
-
-    const headers = this.buildHeaders(options.headers)
-    const fetchFn = this.config.fetch ?? fetch
-
-    const fetchResponse = await fetchFn(url, {
-      method: "POST",
-      headers,
-      body: formData,
-      signal: options.abortSignal,
-    })
-
-    if (!fetchResponse.ok) {
-      const errorText = await fetchResponse.text()
-      let errorMessage = `AgentOS API error: ${fetchResponse.status} ${fetchResponse.statusText}`
-      try {
-        const errorJson = JSON.parse(errorText)
-        if (errorJson.detail) {
-          // Handle detail being either a string or an object
-          const detail =
-            typeof errorJson.detail === "string" ? errorJson.detail : JSON.stringify(errorJson.detail)
-          errorMessage = `AgentOS API error: ${detail}`
-        }
-      } catch {
-        if (errorText) {
-          errorMessage = `AgentOS API error: ${errorText}`
-        }
-      }
-      throw new Error(errorMessage)
-    }
-
-    const responseHeaders: Record<string, string> = {}
-    fetchResponse.headers.forEach((value, key) => {
-      responseHeaders[key] = value
-    })
-
-    const response = (await fetchResponse.json()) as {
-      content?: string
-      run_id?: string
-      session_id?: string
-      error?: string
-    }
-
-    return {
-      responseHeaders,
-      response,
-    }
   }
 
   /**
