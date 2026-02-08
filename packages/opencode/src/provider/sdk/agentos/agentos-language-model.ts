@@ -21,21 +21,6 @@ import type {
   ToolCallData,
 } from "@worksofadam/agentos-sdk"
 import type { AgentOSPausedState, AgentOSRequirement } from "./agentos-types"
-import { appendFileSync } from "fs"
-import { join } from "path"
-
-// Debug log file path - writes to user's home directory
-const DEBUG_LOG_PATH = join(process.env.HOME || "/tmp", ".agentos-debug.log")
-
-function debugLog(message: string, data?: unknown) {
-  const timestamp = new Date().toISOString()
-  const logLine = data ? `[${timestamp}] ${message}: ${JSON.stringify(data, null, 2)}\n` : `[${timestamp}] ${message}\n`
-  try {
-    appendFileSync(DEBUG_LOG_PATH, logLine)
-  } catch {
-    // Ignore write errors
-  }
-}
 
 /**
  * Configuration for the AgentOS language model
@@ -165,8 +150,6 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
 
         try {
           for await (const event of agentStream) {
-            debugLog(`AgentOS event: ${event.event}`, event)
-
             switch (event.event) {
               case "RunStarted": {
                 const e = event as RunStartedEvent
@@ -184,8 +167,8 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
                 if (options.abortSignal && runId) {
                   const onAbort = () => {
                     if (runCompleted) return
-                    self.cancelRun(runId!).catch((err) => {
-                      debugLog("Failed to cancel run", err)
+                    self.cancelRun(runId!).catch(() => {
+                      // Cancel is best-effort
                     })
                   }
                   if (options.abortSignal.aborted) {
@@ -226,8 +209,6 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
                 const toolName = toolData?.tool_name || "unknown"
                 const toolArgs = toolData?.tool_args || {}
 
-                debugLog(`ToolCallStarted: toolName=${toolName}`)
-
                 // Close any open text part first
                 if (currentTextId) {
                   controller.enqueue({ type: "text-end", id: currentTextId })
@@ -255,7 +236,6 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
               }
 
               case "ToolCallCompleted": {
-                debugLog(`ToolCallCompleted`)
                 break
               }
 
@@ -284,7 +264,6 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
               case "RunPaused": {
                 const e = event as RunPausedEvent
                 runCompleted = true
-                debugLog("RunPaused event received", e)
 
                 // Emit any remaining content before pause
                 if (currentTextId) {
@@ -331,12 +310,10 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
               case "ParserModelResponseCompleted":
               case "OutputModelResponseStarted":
               case "OutputModelResponseCompleted": {
-                debugLog(`Informational event: ${event.event}`)
                 break
               }
 
               default: {
-                debugLog(`Unknown AgentOS event type: ${event.event}`, event)
                 break
               }
             }
@@ -433,13 +410,6 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
     const tools = options.requirements.map((req) => req.tool_execution)
     const toolsJSON = JSON.stringify(tools)
 
-    debugLog("continueRun", {
-      agentId: this.modelId,
-      runId: options.runId,
-      sessionId: options.sessionId,
-      tools,
-    })
-
     // Use SDK continue method (returns AgentStream when streaming)
     const stream = (await client.agents.continue(this.modelId, options.runId, {
       tools: toolsJSON,
@@ -454,8 +424,6 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
 
     for await (const event of stream) {
       if (options.abortSignal?.aborted) break
-
-      debugLog(`Continue stream event: ${event.event}`, event)
 
       switch (event.event) {
         case "RunContent": {
@@ -492,8 +460,6 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
         }
       }
     }
-
-    debugLog("Continue stream processed", { textLength: text.length, toolResultsCount: toolResults.length, usage })
 
     return { text, toolResults, usage }
   }
