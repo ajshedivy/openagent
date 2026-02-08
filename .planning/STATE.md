@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-07)
 
 **Core value:** Connect to AgentOS agents from the terminal with a great user experience
-**Current focus:** v2.0 AgentOS SDK Migration -- Phase 11 (End-to-End Verification & Type Cleanup)
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 11 of 11 (End-to-End Verification & Type Cleanup)
-Plan: 2 of 2 in current phase
-Status: Phase complete
-Last activity: 2026-02-07 -- Completed 11-02-PLAN.md (End-to-end verification)
+Phase: All phases complete (11 total across 3 milestones)
+Plan: Not started
+Status: Ready to plan next milestone
+Last activity: 2026-02-07 — v2.0 milestone complete
 
-Progress: ████████████ 100%
+Progress: ████████████ 100% (v2.0)
 
 ## Milestone History
 
@@ -41,57 +41,13 @@ Progress: ████████████ 100%
 - Phases: 5 (7-11)
 - Plans: 9 total (9 complete)
 - Requirements: 25/25 satisfied
-- Duration: 59min 45s total (5min plan 07-01, 2min 52s plan 07-02, 6min 59s plan 08-01, 6min 41s plan 09-01, 2min plan 09-02, 10min 37s plan 10-01, 14min plan 10-02, 9min plan 11-01, 2min 22s plan 11-02)
-
-## Key Files (v2.0 targets)
-
-**Created (v2.0):**
-- `packages/opencode/src/provider/sdk/agentos/agentos-client.ts` -- SDK client singleton
-
-**To refactor:**
-- ~~`packages/opencode/src/provider/sdk/agentos/agentos-language-model.ts`~~ -- ✓ SDK-only (no custom HTTP)
-- ~~`packages/opencode/src/provider/sdk/agentos/agentos-provider.ts`~~ -- ✓ Minimal config (provider + getClient)
-- ~~`packages/opencode/src/provider/sdk/agentos/agentos-types.ts`~~ -- ✓ SDK types end-to-end
-- ~~`packages/opencode/src/plugin/agentos.ts`~~ -- ✓ SDK client with health check
-- ~~`packages/opencode/src/session/llm.ts`~~ -- ✓ continueAgentOS uses SDK continueRun()
-- ~~`packages/opencode/src/session/processor.ts`~~ -- ✓ Tool confirmation workflow verified
+- Duration: 7 days (2026-01-31 → 2026-02-07)
 
 ## Accumulated Context
 
-### v2.0 Decisions
+### Key Decisions
 
-- SDK `@worksofadam/agentos-sdk@0.3.0` chosen as sole API client
-- AI SDK bridge preserved (AgentStream -> LanguageModelV2StreamPart)
-- Teams/Workflows hub deferred to future milestone
-- SDK installed from GitHub (`ajshedivy/agentos-sdk#v0.3.0`), not npm registry
-- SDK client uses singleton pattern with lazy initialization
-- Config resolution: baseURL (config → env), apiKey (auth → env → config)
-- Custom fetch wrapper removed - SDK handles auth internally
-- SDK types accessed via `components["schemas"]` pattern (OpenAPI-generated types)
-- Non-null assertions for API-guaranteed fields (agent.id) acceptable during migration
-- Health check runs before agent discovery for fail-fast initialization
-- SDK error types produce actionable messages (auth, API, connection)
-- Plugin loader returns {} on errors to allow other providers to work
-- Provider factory passes SDK client getter (not raw config) to language model
-- getClient field required in AgentOSConfig - SDK client is sole transport
-- Barrel exports expanded to include AgentOSPausedState, AgentOSRequirement, AgentOSToolExecution
-- RunPaused requirements accessed via StreamEvent index signature (SDK type doesn't expose directly)
-- RunError content field (not error field) contains error message
-- Usage metrics extracted from SDK RunCompleted.metrics (input_tokens, output_tokens, total_tokens)
-- AsyncIterable<StreamEvent> converted to ReadableStream<LanguageModelV2StreamPart> pattern
-- Phase 10: continueRun() and cancelRun() methods use SDK client.agents.continue/cancel
-- AgentOSConfig minimal interface (provider + getClient) - no HTTP fields
-- All custom HTTP code removed from language model (~160 LOC reduction)
-- Abort signal wired to cancelRun() in doStream RunStarted event
-- All SSE event types removed - SDK provides typed events
-- All Zod schemas removed - SDK handles validation
-- AgentOSProviderSettings cleaned (removed headers/fetch fields)
-- Phase 11-01: Debug logging removed from language model (11 call sites)
-- AgentOSProviderSettings simplified to name-only (baseURL/apiKey dead fields removed)
-- Type file organized with clear SDK re-export vs app-specific sections
-- Phase 11-02: All 4 workflow chains verified end-to-end (discovery, streaming, tool confirmation, abort)
-- Zero custom Zod schemas remain - SDK handles all validation
-- All 25/25 v2.0 requirements satisfied - milestone complete
+See PROJECT.md Key Decisions table for full history.
 
 ### Pending Todos
 
@@ -103,9 +59,9 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-07 23:02:33 UTC
-Stopped at: Completed 11-02-PLAN.md (End-to-end verification) -- v2.0 Milestone Complete
+Last session: 2026-02-07
+Stopped at: v2.0 milestone archived
 Resume file: None (all v2.0 work complete)
 
 ---
-*State updated: 2026-02-07 -- Phase 11 Complete (v2.0 Milestone Complete)*
+*State updated: 2026-02-07 — v2.0 Milestone Archived*
