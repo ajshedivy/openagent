@@ -8,11 +8,7 @@
  * ```typescript
  * import { createAgentOS } from "./sdk/agentos"
  *
- * const agentos = createAgentOS({
- *   baseURL: "http://localhost:7777",
- *   apiKey: process.env.AGENTOS_API_KEY,
- * })
- *
+ * const agentos = createAgentOS({ name: "agentos" })
  * const model = agentos.languageModel("my-agent")
  * ```
  */
