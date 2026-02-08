@@ -1,7 +1,18 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "version": "1.1.42",
-  "name": "opencode",
+  "name": "@worksofadam/openagent",
+  "version": "0.1.0",
+  "description": "A terminal UI for interacting with Agno AgentOS",
+  "author": {
+    "name": "Adam Shedivy",
+    "url": "https://github.com/ajshedivy"
+  },
+  "homepage": "https://github.com/ajshedivy/openagent#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ajshedivy/openagent"
+  },
+  "keywords": ["cli", "tui", "terminal", "ai", "agents", "agno", "agentos", "openagent"],
   "type": "module",
   "license": "MIT",
   "private": true,
