@@ -1,5 +1,33 @@
 # Project Milestones: openagent
 
+## v2.0 AgentOS SDK Migration (Shipped: 2026-02-07)
+
+**Delivered:** Replaced all custom AgentOS API client code with `@worksofadam/agentos-sdk`, eliminating ~1000 lines of custom fetch/SSE/types code and verifying full agent chat workflow end-to-end.
+
+**Phases completed:** 7-11 (9 plans total)
+
+**Key accomplishments:**
+
+- Installed SDK and created shared client singleton with health checking and error handling
+- Migrated agent discovery from custom fetch to SDK `client.agents.list()` with typed responses
+- Replaced custom SSE parser with SDK `AgentStream` for streaming and non-streaming paths
+- Migrated tool confirmation continue/cancel to SDK methods, removing ~160 lines of custom HTTP code
+- Eliminated 270+ lines of legacy SSE types and Zod schemas, organized type file with clear SDK sections
+- Verified all 4 workflow chains end-to-end (discovery, streaming, tool confirmation, abort/cancel)
+
+**Stats:**
+
+- 38 files created/modified
+- 6,940 lines added, 1,099 removed
+- 5 phases, 9 plans, 25 requirements satisfied
+- 7 days (2026-01-31 → 2026-02-07)
+
+**Git range:** `ff572362e` → `496fd43e9`
+
+**What's next:** Teams & Workflows hub implementation, or full package rebrand
+
+---
+
 ## v1.1 AgentOS Hub (Shipped: 2026-02-01)
 
 **Delivered:** Central `/agno` hub for viewing and managing AgentOS agents with tabbed UI, agent list with status indicators, detail view with metadata display, and clean separation from `/models`.
