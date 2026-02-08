@@ -1,25 +1,35 @@
 import type { components } from "@worksofadam/agentos-sdk"
 
 // ============================================================================
-// AgentOS API Types
+// SDK Type Re-exports
 // ============================================================================
+// These types come directly from the AgentOS SDK OpenAPI schema and represent
+// API response structures.
 
 /**
- * Agent response from SDK - replaces custom AgentOSAgent interface
+ * Agent response from SDK - replaces custom AgentOSAgent interface.
+ * Re-exported from SDK components["schemas"]["AgentResponse"].
  */
 export type AgentResponse = components["schemas"]["AgentResponse"]
 
 /**
- * Model information from SDK - replaces custom AgentOSModelInfo interface
+ * Model information from SDK - replaces custom AgentOSModelInfo interface.
+ * Re-exported from SDK components["schemas"]["ModelResponse"].
  */
 export type ModelResponse = components["schemas"]["ModelResponse"]
 
 // ============================================================================
-// Tool Confirmation Types (RunPaused)
+// Application-Specific Types (Tool Confirmation Workflow)
 // ============================================================================
+// These types are NOT API response types - they are application state structures
+// used by the tool confirmation workflow. They extend SDK concepts (ToolCallData,
+// RunPausedEvent) with app-specific fields like `confirmed` and `confirmation_note`.
 
 /**
- * Tool execution details for confirmation workflow
+ * Tool execution details for confirmation workflow.
+ * Extends SDK ToolCallData with application-specific confirmation state.
+ *
+ * Note: The `confirmed` and `confirmation_note` fields are app state, not API fields.
  */
 export interface AgentOSToolExecution {
   tool_call_id: string
@@ -31,7 +41,8 @@ export interface AgentOSToolExecution {
 }
 
 /**
- * Requirement with tool execution that needs confirmation
+ * Requirement with tool execution that needs confirmation.
+ * Based on SDK RunPausedEvent.requirements structure with app-specific tool_execution.
  */
 export interface AgentOSRequirement {
   id: string
@@ -40,7 +51,8 @@ export interface AgentOSRequirement {
 }
 
 /**
- * State stored when a run is paused for tool confirmation
+ * State stored when a run is paused for tool confirmation.
+ * Aggregates data from SDK RunPausedEvent for the confirmation workflow.
  */
 export interface AgentOSPausedState {
   runId: string
@@ -51,21 +63,15 @@ export interface AgentOSPausedState {
 }
 
 // ============================================================================
-// Provider Configuration Types
+// Provider Configuration
 // ============================================================================
 
+/**
+ * Provider factory options for createAgentOS().
+ * Note: baseURL/apiKey are resolved by the SDK client singleton (agentos-client.ts),
+ * not passed through provider settings.
+ */
 export interface AgentOSProviderSettings {
-  /**
-   * Base URL for the AgentOS API
-   * @example "http://localhost:7777" or "https://your-agentos.com"
-   */
-  baseURL: string
-
-  /**
-   * API key for Bearer token authentication
-   */
-  apiKey?: string
-
   /**
    * Provider name for identification
    * @default "agentos"
