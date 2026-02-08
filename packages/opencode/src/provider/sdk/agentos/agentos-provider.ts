@@ -35,11 +35,7 @@ export interface AgentOSProvider {
  *
  * @example
  * ```typescript
- * const agentos = createAgentOS({
- *   baseURL: "http://localhost:7777",
- *   apiKey: "your-api-key",
- * })
- *
+ * const agentos = createAgentOS({ name: "agentos" })
  * const model = agentos.languageModel("text2sql-agent")
  * ```
  */
