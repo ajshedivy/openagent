@@ -51,7 +51,7 @@ See `.planning/milestones/v2.0-ROADMAP.md`
 **Plans**: 1 plan
 
 Plans:
-- [ ] 12-01-PLAN.md — Update package.json identity fields (name, version, description, author, repository, keywords)
+- [x] 12-01-PLAN.md — Update package.json identity fields (name, version, description, author, repository, keywords)
 
 #### Phase 13: Config File Dual Support
 
@@ -167,7 +167,7 @@ Plans:
 | 9. Streaming & Language Model | v2.0 | 2/2 | Complete | 2026-02-07 |
 | 10. Tool Confirmation & Run Lifecycle | v2.0 | 2/2 | Complete | 2026-02-07 |
 | 11. E2E Verification & Type Cleanup | v2.0 | 2/2 | Complete | 2026-02-07 |
-| 12. Package Configuration | v3.0 | 0/1 | Planned | - |
+| 12. Package Configuration | v3.0 | 1/1 | Complete | 2026-02-08 |
 | 13. Config File Dual Support | v3.0 | 0/TBD | Not started | - |
 | 14. User-Facing Text Branding | v3.0 | 0/TBD | Not started | - |
 | 15. TUI Tips Content | v3.0 | 0/TBD | Not started | - |
@@ -176,4 +176,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-01-31*
-*Last updated: 2026-02-08 (v3.0 milestone added)*
+*Last updated: 2026-02-08 (Phase 12 complete)*
