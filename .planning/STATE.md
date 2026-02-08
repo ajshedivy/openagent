@@ -6,16 +6,16 @@ See: .planning/PROJECT.md (updated 2026-02-08)
 
 **Core value:** Connect to AgentOS agents from the terminal with a great user experience — agent discovery, rich interaction, and multi-agent orchestration.
 
-**Current focus:** Phase 12 - Package Configuration
+**Current focus:** Phase 13 - Config File Dual Support
 
 ## Current Position
 
-Phase: 12 of 17 (Package Configuration)
+Phase: 13 of 17 (Config File Dual Support)
 Plan: 1 of 1 in current phase
 Status: Complete
-Last activity: 2026-02-08 — Phase 12 Plan 01 complete
+Last activity: 2026-02-08 — Phase 13 Plan 01 complete
 
-Progress: [█████████████████████░░░░░░░] 71% (12/17 phases complete)
+Progress: [█████████████████████░░░░░░░] 76% (13/17 phases complete)
 
 ## Milestone History
 
@@ -47,8 +47,9 @@ Progress: [█████████████████████░░
 
 **v3.0 (in progress):**
 - Phases: 6 (12-17)
-- Plans: 1 complete
+- Plans: 2 complete
 - Phase 12: 1 plan (41 seconds, 1 task, 1 file)
+- Phase 13: 1 plan (119 seconds, 2 tasks, 2 files)
 - Requirements: 16 total
 - Target: First npm publish
 
@@ -64,6 +65,8 @@ Recent decisions affecting v3.0:
 - Dual config file support (openagent.json preferred, opencode.json fallback)
 - Preserve OPENCODE_* env vars (backward compat, new vars use OPENAGENT_*)
 - Package identity: @worksofadam/openagent v0.1.0 with complete npm metadata (Phase 12-01)
+- openagent.json takes precedence over opencode.json (new branding preferred, existing configs still work) (Phase 13-01)
+- OPENCODE_* env vars remain unchanged (backward compatibility for existing deployments) (Phase 13-01)
 
 ### Pending Todos
 
@@ -71,14 +74,14 @@ None.
 
 ### Blockers/Concerns
 
-None. Phase 12 complete.
+None. Phase 13 complete.
 
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 12-01-PLAN.md
+Stopped at: Completed 13-01-PLAN.md
 Resume file: None
-Next action: Phase 12 complete, ready for Phase 13
+Next action: Phase 13 complete, ready for Phase 14
 
 ---
-*State updated: 2026-02-08 — Phase 12-01 Complete*
+*State updated: 2026-02-08 — Phase 13-01 Complete*
