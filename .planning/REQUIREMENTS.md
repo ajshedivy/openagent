@@ -63,28 +63,28 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PUB-01 | — | Pending |
-| PUB-02 | — | Pending |
-| PUB-03 | — | Pending |
-| PUB-04 | — | Pending |
-| PUB-05 | — | Pending |
-| CFG-01 | — | Pending |
-| CFG-02 | — | Pending |
-| CFG-03 | — | Pending |
-| CFG-04 | — | Pending |
-| BRD-01 | — | Pending |
-| BRD-02 | — | Pending |
-| BRD-03 | — | Pending |
-| BRD-04 | — | Pending |
-| BRD-05 | — | Pending |
-| REL-01 | — | Pending |
-| REL-02 | — | Pending |
+| PUB-01 | Phase 16 | Pending |
+| PUB-02 | Phase 16 | Pending |
+| PUB-03 | Phase 12 | Pending |
+| PUB-04 | Phase 17 | Pending |
+| PUB-05 | Phase 16 | Pending |
+| CFG-01 | Phase 13 | Pending |
+| CFG-02 | Phase 13 | Pending |
+| CFG-03 | Phase 13 | Pending |
+| CFG-04 | Phase 13 | Pending |
+| BRD-01 | Phase 14 | Pending |
+| BRD-02 | Phase 15 | Pending |
+| BRD-03 | Phase 12 | Pending |
+| BRD-04 | Phase 14 | Pending |
+| BRD-05 | Phase 14 | Pending |
+| REL-01 | Phase 17 | Pending |
+| REL-02 | Phase 17 | Pending |
 
 **Coverage:**
 - v3.0 requirements: 16 total
-- Mapped to phases: 0
-- Unmapped: 16 ⚠️
+- Mapped to phases: 16/16 (100%)
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-08*
-*Last updated: 2026-02-08 after initial definition*
+*Last updated: 2026-02-08 after v3.0 roadmap creation*
