@@ -77,11 +77,11 @@ Plans:
 **Goal**: Zero custom AgentOS API types remain and the full agent chat workflow is verified from discovery through completion
 **Depends on**: Phase 10
 **Requirements**: TYPE-01, TYPE-02, TYPE-03, RUN-03
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 11-01: Remove custom types and establish SDK re-exports
-- [ ] 11-02: Full workflow verification and dead code cleanup
+- [ ] 11-01-PLAN.md -- Remove debug logging, simplify AgentOSProviderSettings, organize type file
+- [ ] 11-02-PLAN.md -- Verify full workflow wiring chains and confirm all type requirements satisfied
 
 ## Progress
 
@@ -100,4 +100,4 @@ Note: Phase 8 (Discovery) and Phase 9 (Streaming) both depend only on Phase 7 an
 
 ---
 *Roadmap created: 2026-02-07*
-*Last updated: 2026-02-07 (Phase 10 complete)*
+*Last updated: 2026-02-07 (Phase 11 planned)*
