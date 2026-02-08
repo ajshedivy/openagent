@@ -6,16 +6,16 @@ See: .planning/PROJECT.md (updated 2026-02-08)
 
 **Core value:** Connect to AgentOS agents from the terminal with a great user experience — agent discovery, rich interaction, and multi-agent orchestration.
 
-**Current focus:** Phase 13 - Config File Dual Support
+**Current focus:** Phase 14 - User-Facing Text Branding
 
 ## Current Position
 
-Phase: 13 of 17 (Config File Dual Support)
+Phase: 14 of 17 (User-Facing Text Branding)
 Plan: 1 of 1 in current phase
 Status: Complete
-Last activity: 2026-02-08 — Phase 13 Plan 01 complete
+Last activity: 2026-02-08 — Phase 14 Plan 01 complete
 
-Progress: [█████████████████████░░░░░░░] 76% (13/17 phases complete)
+Progress: [██████████████████████░░░░░░] 82% (14/17 phases complete)
 
 ## Milestone History
 
@@ -47,9 +47,10 @@ Progress: [█████████████████████░░
 
 **v3.0 (in progress):**
 - Phases: 6 (12-17)
-- Plans: 2 complete
+- Plans: 3 complete
 - Phase 12: 1 plan (41 seconds, 1 task, 1 file)
 - Phase 13: 1 plan (119 seconds, 2 tasks, 2 files)
+- Phase 14: 1 plan (181 seconds, 3 tasks, 10 files)
 - Requirements: 16 total
 - Target: First npm publish
 
@@ -67,6 +68,8 @@ Recent decisions affecting v3.0:
 - Package identity: @worksofadam/openagent v0.1.0 with complete npm metadata (Phase 12-01)
 - openagent.json takes precedence over opencode.json (new branding preferred, existing configs still work) (Phase 13-01)
 - OPENCODE_* env vars remain unchanged (backward compatibility for existing deployments) (Phase 13-01)
+- User-facing text consistently uses lowercase 'openagent' (not 'OpenAgent' or title case) (Phase 14-01)
+- Internal identifiers (provider IDs, theme names) remain 'opencode' (not user-facing) (Phase 14-01)
 
 ### Pending Todos
 
@@ -74,14 +77,14 @@ None.
 
 ### Blockers/Concerns
 
-None. Phase 13 complete.
+None. Phase 14 complete.
 
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Completed 13-01-PLAN.md
+Stopped at: Completed 14-01-PLAN.md
 Resume file: None
-Next action: Phase 13 complete, ready for Phase 14
+Next action: Phase 14 complete, ready for Phase 15
 
 ---
-*State updated: 2026-02-08 — Phase 13-01 Complete*
+*State updated: 2026-02-08 — Phase 14-01 Complete*
