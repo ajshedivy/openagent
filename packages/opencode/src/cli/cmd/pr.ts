@@ -5,7 +5,7 @@ import { $ } from "bun"
 
 export const PrCommand = cmd({
   command: "pr <number>",
-  describe: "fetch and checkout a GitHub PR branch, then run opencode",
+  describe: "fetch and checkout a GitHub PR branch, then run openagent",
   builder: (yargs) =>
     yargs.positional("number", {
       type: "number",
@@ -68,7 +68,7 @@ export const PrCommand = cmd({
               const sessionMatch = prInfo.body.match(/https:\/\/opncd\.ai\/s\/([a-zA-Z0-9_-]+)/)
               if (sessionMatch) {
                 const sessionUrl = sessionMatch[0]
-                UI.println(`Found opencode session: ${sessionUrl}`)
+                UI.println(`Found openagent session: ${sessionUrl}`)
                 UI.println(`Importing session...`)
 
                 const importResult = await $`opencode import ${sessionUrl}`.nothrow()
@@ -88,7 +88,7 @@ export const PrCommand = cmd({
 
         UI.println(`Successfully checked out PR #${prNumber} as branch '${localBranchName}'`)
         UI.println()
-        UI.println("Starting opencode...")
+        UI.println("Starting openagent...")
         UI.println()
 
         // Launch opencode TUI with session ID if available
@@ -102,7 +102,7 @@ export const PrCommand = cmd({
         await new Promise<void>((resolve, reject) => {
           opencodeProcess.on("exit", (code) => {
             if (code === 0) resolve()
-            else reject(new Error(`opencode exited with code ${code}`))
+            else reject(new Error(`openagent exited with code ${code}`))
           })
           opencodeProcess.on("error", reject)
         })
