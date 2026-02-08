@@ -68,10 +68,10 @@ Plans:
   4. Both config file formats validate identically
   5. Config resolution logic is tested and verified
 
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 13-01: TBD
+- [ ] 13-01-PLAN.md — Add dual config file resolution (openagent.json preferred, opencode.json fallback)
 
 #### Phase 14: User-Facing Text Branding
 
