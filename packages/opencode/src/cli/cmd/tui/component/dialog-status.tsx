@@ -45,7 +45,7 @@ export function DialogStatus() {
         </text>
         <text fg={theme.textMuted}>esc</text>
       </box>
-      <text fg={theme.textMuted}>OpenCode v{Installation.VERSION}</text>
+      <text fg={theme.textMuted}>openagent v{Installation.VERSION}</text>
       <Show when={Object.keys(sync.data.mcp).length > 0} fallback={<text fg={theme.text}>No MCP Servers</text>}>
         <box>
           <text fg={theme.text}>{Object.keys(sync.data.mcp).length} MCP Servers</text>
