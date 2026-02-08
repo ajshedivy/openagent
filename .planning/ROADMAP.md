@@ -71,7 +71,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 13-01-PLAN.md — Add dual config file resolution (openagent.json preferred, opencode.json fallback)
+- [x] 13-01-PLAN.md — Add dual config file resolution (openagent.json preferred, opencode.json fallback)
 
 #### Phase 14: User-Facing Text Branding
 
@@ -168,7 +168,7 @@ Plans:
 | 10. Tool Confirmation & Run Lifecycle | v2.0 | 2/2 | Complete | 2026-02-07 |
 | 11. E2E Verification & Type Cleanup | v2.0 | 2/2 | Complete | 2026-02-07 |
 | 12. Package Configuration | v3.0 | 1/1 | Complete | 2026-02-08 |
-| 13. Config File Dual Support | v3.0 | 0/TBD | Not started | - |
+| 13. Config File Dual Support | v3.0 | 1/1 | Complete | 2026-02-08 |
 | 14. User-Facing Text Branding | v3.0 | 0/TBD | Not started | - |
 | 15. TUI Tips Content | v3.0 | 0/TBD | Not started | - |
 | 16. Publishing Pipeline | v3.0 | 0/TBD | Not started | - |
@@ -176,4 +176,4 @@ Plans:
 
 ---
 *Roadmap created: 2026-01-31*
-*Last updated: 2026-02-08 (Phase 12 complete)*
+*Last updated: 2026-02-08 (Phase 13 complete)*
