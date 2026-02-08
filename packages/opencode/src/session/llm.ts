@@ -316,16 +316,10 @@ export namespace LLM {
       throw new Error("Cannot continue non-AgentOS run")
     }
 
-    const { body } = await language.makeContinueRequest({
+    return language.continueRun({
       runId: input.pausedState.runId,
       sessionId: input.pausedState.sessionId,
       requirements: input.pausedState.requirements,
-      abortSignal: input.abort,
-    })
-
-    // Process the continued stream and return accumulated content
-    return language.processContinueStream({
-      body,
       abortSignal: input.abort,
     })
   }

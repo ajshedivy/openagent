@@ -19,15 +19,20 @@ Openagent now features the `/agno` slash command as a central hub for viewing an
 - 253,293 lines TypeScript total
 - Repository: github.com/ajshedivy/openagent
 
-## Next Milestone: v1.2 Teams & Workflows
+## Current Milestone: v2.0 AgentOS SDK Migration
 
-**Goal:** Implement full Teams and Workflows functionality in the `/agno` hub.
+**Goal:** Replace all custom AgentOS API client code with `@worksofadam/agentos-sdk` and ensure full working agent support end-to-end.
 
 **Target features:**
-- Teams list with member agents
-- Team detail view and connect
-- Workflows list with steps/stages
-- Workflow execution from hub
+- Install and integrate `@worksofadam/agentos-sdk` as the sole AgentOS API client
+- Replace custom SSE parsing with SDK's `AgentStream`
+- Replace manual fetch/FormData calls with SDK resource methods (`client.agents.*`)
+- Replace hand-written Zod schemas/types with SDK-provided types
+- Refactor agent discovery plugin to use `client.agents.list()`
+- Adapt `AgentStream` events to Vercel AI SDK `LanguageModelV2StreamPart` (keep AI SDK bridge)
+- Refactor tool confirmation continue workflow to use `client.agents.continue()`
+- Full working agent chat: discovery → connect → stream → tool confirmation → continue/cancel
+- Architecture enables trivial future addition of teams/workflows via `client.teams.*` / `client.workflows.*`
 
 ## Requirements
 
@@ -66,20 +71,26 @@ Openagent now features the `/agno` slash command as a central hub for viewing an
 
 ### Active
 
-<!-- v1.2 Teams & Workflows -->
+<!-- v2.0 AgentOS SDK Migration -->
 
-- [ ] Teams list displays all teams from AgentOS API
-- [ ] Team detail view with member agents
-- [ ] Connect to team for multi-agent orchestration
-- [ ] Workflows list displays all workflows from AgentOS API
-- [ ] Workflow detail view with steps/stages
-- [ ] Execute workflow from hub
+- [ ] `@worksofadam/agentos-sdk` installed as dependency
+- [ ] Agent discovery uses `AgentOSClient.agents.list()` instead of custom fetch
+- [ ] Agent streaming uses `AgentOSClient.agents.runStream()` with `AgentStream`
+- [ ] `AgentStream` events adapted to AI SDK `LanguageModelV2StreamPart` interface
+- [ ] Tool confirmation continue uses `AgentOSClient.agents.continue()`
+- [ ] Run cancellation uses `AgentOSClient.agents.cancel()`
+- [ ] Custom SSE parser removed (replaced by SDK's `AgentStream`)
+- [ ] Custom Zod schemas/types replaced with SDK-provided types
+- [ ] Full agent chat workflow verified: discover → connect → stream → tool confirm → continue
+- [ ] SDK client shared as singleton across plugin and provider layers
 
 ### Out of Scope
 
 - opencode-specific branding or features — this is a new project
 - Non-AgentOS providers (will focus purely on AgentOS API) — future decision
 - Mobile or web deployment — terminal CLI focus
+- Teams/Workflows hub implementation — deferred to future milestone (SDK makes this trivial)
+- Full package rebrand (scope, directories, env vars) — deferred
 
 ## Context
 
@@ -101,14 +112,18 @@ Openagent now features the `/agno` slash command as a central hub for viewing an
 - Platform binary packages (openagent-{platform}-{arch}) not yet created
 - Old branches retain 8,464-commit opencode history
 
+**AgentOS SDK (`@worksofadam/agentos-sdk` v0.3.0):**
+- `AgentOSClient` with resource classes: agents, teams, workflows, sessions, memories, traces, metrics, knowledge
+- `AgentStream` for SSE consumption (async iterable + event handlers)
+- Typed responses generated from OpenAPI spec
+- Built-in retry, error hierarchy, file upload normalization
+
 **Future scope:**
-- Full rebrand (package scope, directories, env vars) — v2.0
-- Teams integration
-- Workflows integration
-- Evals integration
-- Sessions management
-- Metrics dashboard
-- AgentOS client SDK development
+- Teams hub implementation (via `client.teams.*`)
+- Workflows hub implementation (via `client.workflows.*`)
+- Sessions management (via `client.sessions.*`)
+- Metrics dashboard (via `client.metrics.*`)
+- Full rebrand (package scope, directories, env vars)
 
 ## Constraints
 
@@ -125,6 +140,8 @@ Openagent now features the `/agno` slash command as a central hub for viewing an
 | Focus on AgentOS API exclusively | Simplify architecture, align with AgentOS ecosystem | — Pending (v2.0) |
 | Squash 8,464 commits into single initial commit | Clean divergence point, full attribution preserved | ✓ Good — clean history |
 | Defer full package rebrand to v2.0 | Minimal changes for v1.0, keep compatibility | ✓ Good — fast ship |
+| Adopt `@worksofadam/agentos-sdk` for API client | Eliminate ~1000 lines of custom fetch/SSE/types code, get typed API from OpenAPI spec, built-in retry and error handling | — Pending (v2.0) |
+| Keep AI SDK bridge during SDK migration | Preserve Vercel AI SDK integration, minimize blast radius, adapt AgentStream → LanguageModelV2StreamPart | — Pending (v2.0) |
 
 ---
-*Last updated: 2026-02-01 after v1.1 milestone completed*
+*Last updated: 2026-02-07 after v2.0 milestone started*

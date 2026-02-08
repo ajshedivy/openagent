@@ -21,14 +21,9 @@ export { createAgentOS, type AgentOSProvider } from "./agentos-provider"
 export { AgentOSLanguageModel, type AgentOSConfig } from "./agentos-language-model"
 export type {
   AgentOSProviderSettings,
-  AgentOSAgent,
-  AgentOSModelInfo,
-  AgentOSEvent,
-  AgentOSRunStartedEvent,
-  AgentOSRunContentEvent,
-  AgentOSToolCallStartedEvent,
-  AgentOSToolCallCompletedEvent,
-  AgentOSRunCompletedEvent,
-  AgentOSRunErrorEvent,
-  AgentOSErrorResponse,
+  AgentResponse,
+  ModelResponse,
+  AgentOSPausedState,
+  AgentOSRequirement,
+  AgentOSToolExecution,
 } from "./agentos-types"

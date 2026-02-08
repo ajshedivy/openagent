@@ -1,5 +1,7 @@
 import type { Hooks, PluginInput } from "@opencode-ai/plugin"
-import type { AgentOSAgent } from "../provider/sdk/agentos/agentos-types"
+import type { AgentResponse } from "../provider/sdk/agentos/agentos-types"
+import { getAgentOSClient } from "../provider/sdk/agentos/agentos-client"
+import { APIError, AuthenticationError } from "@worksofadam/agentos-sdk"
 import { Config } from "../config/config"
 import { Env } from "../env"
 
@@ -19,56 +21,86 @@ export async function AgentOSAuthPlugin(_input: PluginInput): Promise<Hooks> {
        * Called when the provider is being initialized.
        */
       async loader(getAuth, provider) {
-        const auth = await getAuth()
+        try {
+          const auth = await getAuth()
 
-        // Get API key from auth, env, or config
-        const apiKey = await (async () => {
-          if (auth?.type === "api") return auth.key
-          const envKey = Env.get("AGENTOS_API_KEY")
-          if (envKey) return envKey
+          // Get API key from auth, env, or config
+          const apiKey = await (async () => {
+            if (auth?.type === "api") return auth.key
+            const envKey = Env.get("AGENTOS_API_KEY")
+            if (envKey) return envKey
+            const cfg = await Config.get()
+            return cfg.provider?.["agentos"]?.options?.apiKey as string | undefined
+          })()
+
+          // Get base URL from config or env
           const cfg = await Config.get()
-          return cfg.provider?.["agentos"]?.options?.apiKey as string | undefined
-        })()
+          const baseURL =
+            (cfg.provider?.["agentos"]?.options?.baseURL as string | undefined) ||
+            (cfg.provider?.["agentos"]?.api as string | undefined) ||
+            Env.get("AGENTOS_API_URL")
 
-        // Get base URL from config or env
-        const cfg = await Config.get()
-        const baseURL =
-          (cfg.provider?.["agentos"]?.options?.baseURL as string | undefined) ||
-          (cfg.provider?.["agentos"]?.api as string | undefined) ||
-          Env.get("AGENTOS_API_URL")
+          if (!baseURL) return {}
 
-        if (!baseURL) return {}
+          // Get SDK client
+          const client = await getAgentOSClient()
 
-        // Fetch agents from the AgentOS API
-        const agents = await fetchAgents(baseURL, apiKey)
-
-        // Map each agent to a model in the provider
-        if (provider && provider.models) {
-          for (const agent of agents) {
-            const model = agentToModel(agent, baseURL)
-            provider.models[agent.id] = model
+          // Health check - fail fast on connection issues
+          try {
+            await client.health()
+          } catch (error) {
+            // Handle SDK-specific errors
+            if (error instanceof AuthenticationError) {
+              console.warn("AgentOS authentication failed. Check your AGENTOS_API_KEY.")
+              return {}
+            }
+            if (error instanceof APIError) {
+              console.warn(`AgentOS API error (${error.status}): ${error.message}`)
+              return {}
+            }
+            // Handle network/connection errors (ECONNREFUSED, DNS, etc.)
+            if (error instanceof Error) {
+              if (
+                error.message.includes("ECONNREFUSED") ||
+                error.message.includes("ENOTFOUND") ||
+                error.message.includes("fetch failed") ||
+                error.message.includes("connect")
+              ) {
+                console.warn(`Cannot connect to AgentOS at ${baseURL}. Check that the server is running.`)
+                return {}
+              }
+            }
+            // Unknown error - log and return empty
+            console.warn(`AgentOS health check failed: ${error instanceof Error ? error.message : String(error)}`)
+            return {}
           }
-        }
 
-        // Return options for the provider SDK
-        return {
-          baseURL,
-          apiKey,
-          async fetch(request: RequestInfo | URL, init?: RequestInit) {
-            const headers: Record<string, string> = {
-              ...(init?.headers as Record<string, string>),
+          // Fetch agents
+          const agents = await client.agents.list()
+
+          // Map each agent to a model in the provider
+          if (provider && provider.models) {
+            for (const agent of agents) {
+              const model = agentToModel(agent, baseURL)
+              provider.models[agent.id!] = model
             }
+          }
 
-            // Add authorization header if API key is available
-            if (apiKey) {
-              headers["Authorization"] = `Bearer ${apiKey}`
-            }
-
-            return fetch(request, {
-              ...init,
-              headers,
-            })
-          },
+          // Return options for the provider SDK
+          // Note: SDK handles auth internally, so no custom fetch wrapper needed
+          return {
+            baseURL,
+            apiKey,
+          }
+        } catch (error) {
+          // Catch any uncaught errors (e.g., from getAgentOSClient() if not configured)
+          if (error instanceof Error && error.message.includes("not configured")) {
+            // AgentOS not configured - this is fine, other providers may be used
+            return {}
+          }
+          // Log and return empty to allow other providers to continue
+          console.warn(`AgentOS provider failed to initialize: ${error instanceof Error ? error.message : String(error)}`)
+          return {}
         }
       },
 
@@ -87,40 +119,10 @@ export async function AgentOSAuthPlugin(_input: PluginInput): Promise<Hooks> {
 }
 
 /**
- * Fetch agents from the AgentOS API
- */
-async function fetchAgents(baseURL: string, apiKey?: string): Promise<AgentOSAgent[]> {
-  const url = `${baseURL.replace(/\/$/, "")}/agents`
-
-  const headers: Record<string, string> = {
-    Accept: "application/json",
-  }
-
-  if (apiKey) {
-    headers["Authorization"] = `Bearer ${apiKey}`
-  }
-
-  try {
-    const response = await fetch(url, { headers })
-
-    if (!response.ok) {
-      console.warn(`Failed to fetch AgentOS agents: ${response.status} ${response.statusText}`)
-      return []
-    }
-
-    const agents = (await response.json()) as AgentOSAgent[]
-    return agents
-  } catch (error) {
-    console.warn("Failed to fetch AgentOS agents:", error)
-    return []
-  }
-}
-
-/**
  * Convert an AgentOS agent to an OpenCode provider model
  */
 function agentToModel(
-  agent: AgentOSAgent,
+  agent: AgentResponse,
   baseURL: string,
 ): {
   id: string
@@ -149,11 +151,11 @@ function agentToModel(
   const hasReasoning = !!(agent.reasoning && Object.keys(agent.reasoning).length > 0)
 
   return {
-    id: agent.id,
+    id: agent.id!,
     providerID: "agentos",
-    name: agent.name || agent.id,
+    name: agent.name || agent.id!,
     api: {
-      id: agent.id,
+      id: agent.id!,
       url: baseURL,
       npm: "@opencode/agentos",
     },

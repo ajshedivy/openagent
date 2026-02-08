@@ -7,7 +7,20 @@ import {
   type LanguageModelV2Content,
 } from "@ai-sdk/provider"
 import { generateId } from "@ai-sdk/provider-utils"
-import type { AgentOSEvent, AgentOSPausedState, AgentOSRequirement } from "./agentos-types"
+import type {
+  AgentOSClient,
+  AgentStream,
+  StreamEvent,
+  RunStartedEvent,
+  RunContentEvent,
+  RunCompletedEvent,
+  RunPausedEvent,
+  RunErrorEvent,
+  ToolCallStartedEvent,
+  ToolCallCompletedEvent,
+  ToolCallData,
+} from "@worksofadam/agentos-sdk"
+import type { AgentOSPausedState, AgentOSRequirement } from "./agentos-types"
 import { appendFileSync } from "fs"
 import { join } from "path"
 
@@ -29,10 +42,7 @@ function debugLog(message: string, data?: unknown) {
  */
 export interface AgentOSConfig {
   provider: string
-  baseURL: string
-  apiKey?: string
-  headers?: Record<string, string> | (() => Record<string, string>)
-  fetch?: typeof fetch
+  getClient: () => Promise<AgentOSClient>
 }
 
 /**
@@ -68,7 +78,7 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
 
   /**
    * Generate a non-streaming response.
-   * Collects all streaming events and returns the final result.
+   * Uses SDK client.agents.run() for synchronous agent communication.
    */
   async doGenerate(
     options: Parameters<LanguageModelV2["doGenerate"]>[0],
@@ -77,61 +87,59 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
     const content: LanguageModelV2Content[] = []
     let finishReason: LanguageModelV2FinishReason = "unknown"
 
-    // Extract the user message from the prompt
     const userMessage = this.extractUserMessage(options.prompt)
 
-    const { responseHeaders, response } = await this.makeNonStreamingRequest({
-      agentId: this.modelId,
+    // Get SDK client
+    const client = await this.config.getClient()
+
+    // Use SDK for non-streaming run
+    const result = await client.agents.run(this.modelId, {
       message: userMessage,
-      headers: options.headers,
-      abortSignal: options.abortSignal,
     })
 
-    if (response.error) {
-      throw new Error(response.error)
-    }
-
-    if (response.content) {
-      content.push({
-        type: "text",
-        text: response.content,
-      })
+    // Extract content from RunSchema result
+    const responseContent = result.content
+    if (responseContent) {
+      const text = typeof responseContent === "string"
+        ? responseContent
+        : JSON.stringify(responseContent)
+      content.push({ type: "text", text })
       finishReason = "stop"
     }
+
+    // Extract usage from metrics if available
+    const metrics = result.metrics as { input_tokens?: number; output_tokens?: number; total_tokens?: number } | undefined
 
     return {
       content,
       finishReason,
       usage: {
-        inputTokens: undefined,
-        outputTokens: undefined,
-        totalTokens: undefined,
+        inputTokens: metrics?.input_tokens,
+        outputTokens: metrics?.output_tokens,
+        totalTokens: metrics?.total_tokens,
       },
       request: { body: { message: userMessage } },
-      response: {
-        headers: responseHeaders,
-      },
+      response: { headers: {} },
       warnings,
     }
   }
 
   /**
    * Generate a streaming response.
-   * Transforms AgentOS SSE events to AI SDK stream parts.
+   * Transforms AgentOS SDK AgentStream events to AI SDK stream parts.
    */
   async doStream(
     options: Parameters<LanguageModelV2["doStream"]>[0],
   ): Promise<Awaited<ReturnType<LanguageModelV2["doStream"]>>> {
     const warnings: LanguageModelV2CallWarning[] = []
-
-    // Extract the user message from the prompt
     const userMessage = this.extractUserMessage(options.prompt)
 
-    const { responseHeaders, body } = await this.makeStreamingRequest({
-      agentId: this.modelId,
+    // Get SDK client
+    const client = await this.config.getClient()
+
+    // Use SDK to create streaming run
+    const agentStream = await client.agents.runStream(this.modelId, {
       message: userMessage,
-      headers: options.headers,
-      abortSignal: options.abortSignal,
     })
 
     let finishReason: LanguageModelV2FinishReason = "unknown"
@@ -145,233 +153,237 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
     let sessionId: string | null = null
     let currentTextId: string | null = null
     let pausedState: AgentOSPausedState | null = null
+    let runCompleted = false
+    let abortCleanup: (() => void) | null = null
 
     const self = this
 
-    // Create a readable stream from the response body
-    const textStream = body.pipeThrough(new TextDecoderStream() as unknown as TransformStream<Uint8Array, string>)
+    // Convert SDK AgentStream (AsyncIterable) to ReadableStream for AI SDK
+    const stream = new ReadableStream<LanguageModelV2StreamPart>({
+      async start(controller) {
+        controller.enqueue({ type: "stream-start", warnings })
+
+        try {
+          for await (const event of agentStream) {
+            debugLog(`AgentOS event: ${event.event}`, event)
+
+            switch (event.event) {
+              case "RunStarted": {
+                const e = event as RunStartedEvent
+                runId = e.run_id || generateId()
+                sessionId = e.session_id || null
+
+                controller.enqueue({
+                  type: "response-metadata",
+                  id: runId,
+                  timestamp: new Date((e.created_at || Date.now() / 1000) * 1000),
+                  modelId: e.model || self.modelId,
+                })
+
+                // Wire abort signal to cancel run (only if still in progress)
+                if (options.abortSignal && runId) {
+                  const onAbort = () => {
+                    if (runCompleted) return
+                    self.cancelRun(runId!).catch((err) => {
+                      debugLog("Failed to cancel run", err)
+                    })
+                  }
+                  if (options.abortSignal.aborted) {
+                    onAbort()
+                  } else {
+                    options.abortSignal.addEventListener("abort", onAbort, { once: true })
+                    abortCleanup = () => options.abortSignal!.removeEventListener("abort", onAbort)
+                  }
+                }
+                break
+              }
+
+              case "RunContent": {
+                const e = event as RunContentEvent
+                const content = typeof e.content === "string" ? e.content : undefined
+                if (content) {
+                  if (!currentTextId) {
+                    currentTextId = generateId()
+                    controller.enqueue({ type: "text-start", id: currentTextId })
+                  }
+                  controller.enqueue({ type: "text-delta", id: currentTextId, delta: content })
+                }
+
+                const reasoningContent = e.reasoning_content
+                if (reasoningContent) {
+                  controller.enqueue({
+                    type: "reasoning-delta",
+                    id: `${runId}:reasoning`,
+                    delta: reasoningContent,
+                  })
+                }
+                break
+              }
+
+              case "ToolCallStarted": {
+                const e = event as ToolCallStartedEvent
+                const toolData = e.tool
+                const toolName = toolData?.tool_name || "unknown"
+                const toolArgs = toolData?.tool_args || {}
+
+                debugLog(`ToolCallStarted: toolName=${toolName}`)
+
+                // Close any open text part first
+                if (currentTextId) {
+                  controller.enqueue({ type: "text-end", id: currentTextId })
+                  currentTextId = null
+                }
+
+                // Format tool call like MCP tools
+                const argsStr = Object.entries(toolArgs)
+                  .map(([k, v]) => {
+                    const valueStr = typeof v === "string" ? v : JSON.stringify(v)
+                    const truncated = valueStr.length > 50 ? valueStr.slice(0, 47) + "..." : valueStr
+                    return `${k}=${truncated}`
+                  })
+                  .join(", ")
+
+                const toolTextId = generateId()
+                controller.enqueue({ type: "text-start", id: toolTextId })
+                controller.enqueue({
+                  type: "text-delta",
+                  id: toolTextId,
+                  delta: `\n⚙ \`${toolName}\`${argsStr ? ` ${argsStr}` : ""}\n`,
+                })
+                controller.enqueue({ type: "text-end", id: toolTextId })
+                break
+              }
+
+              case "ToolCallCompleted": {
+                debugLog(`ToolCallCompleted`)
+                break
+              }
+
+              case "RunCompleted": {
+                const e = event as RunCompletedEvent
+                runCompleted = true
+                finishReason = "stop"
+
+                // Extract usage from metrics if available
+                if (e.metrics) {
+                  usage.inputTokens = e.metrics.input_tokens
+                  usage.outputTokens = e.metrics.output_tokens
+                  usage.totalTokens = e.metrics.total_tokens
+                }
+                break
+              }
+
+              case "RunContentCompleted": {
+                if (currentTextId) {
+                  controller.enqueue({ type: "text-end", id: currentTextId })
+                  currentTextId = null
+                }
+                break
+              }
+
+              case "RunPaused": {
+                const e = event as RunPausedEvent
+                runCompleted = true
+                debugLog("RunPaused event received", e)
+
+                // Emit any remaining content before pause
+                if (currentTextId) {
+                  controller.enqueue({ type: "text-end", id: currentTextId })
+                  currentTextId = null
+                }
+
+                // Build paused state for processor to handle
+                // The SDK RunPausedEvent has tools?: ToolCallData[]
+                // The API also returns requirements at the top level of the event
+                // Access via index signature since SDK type may not include requirements
+                const requirements = ((event as StreamEvent).requirements as AgentOSRequirement[] | undefined) || []
+                const tools = (e.tools || []) as unknown as AgentOSPausedState["tools"]
+
+                pausedState = {
+                  runId: runId || generateId(),
+                  sessionId: sessionId || "",
+                  agentId: self.modelId,
+                  requirements,
+                  tools,
+                }
+
+                finishReason = "tool-calls"
+                break
+              }
+
+              case "RunError": {
+                const e = event as RunErrorEvent
+                runCompleted = true
+                finishReason = "error"
+                const errorMsg = (typeof e.content === "string" ? e.content : undefined) || "Unknown error"
+                controller.enqueue({ type: "error", error: new Error(errorMsg) })
+                break
+              }
+
+              // Informational events - no action needed
+              case "ModelRequestStarted":
+              case "ModelRequestCompleted":
+              case "ModelResponseStarted":
+              case "ModelResponseCompleted":
+              case "ReasoningStarted":
+              case "ReasoningCompleted":
+              case "ParserModelResponseStarted":
+              case "ParserModelResponseCompleted":
+              case "OutputModelResponseStarted":
+              case "OutputModelResponseCompleted": {
+                debugLog(`Informational event: ${event.event}`)
+                break
+              }
+
+              default: {
+                debugLog(`Unknown AgentOS event type: ${event.event}`, event)
+                break
+              }
+            }
+          }
+        } catch (err) {
+          // If stream was aborted, don't enqueue error
+          if (options.abortSignal?.aborted) {
+            controller.close()
+            return
+          }
+          controller.enqueue({ type: "error", error: err instanceof Error ? err : new Error(String(err)) })
+        }
+
+        // Clean up abort listener since run is done
+        abortCleanup?.()
+
+        // Close any open text part
+        if (currentTextId) {
+          controller.enqueue({ type: "text-end", id: currentTextId })
+        }
+
+        // Serialize pausedState for providerMetadata
+        const serializedPausedState = pausedState
+          ? JSON.parse(JSON.stringify(pausedState))
+          : null
+
+        controller.enqueue({
+          type: "finish",
+          finishReason,
+          usage,
+          providerMetadata: {
+            agentos: {
+              runId,
+              sessionId,
+              pausedState: serializedPausedState,
+            },
+          },
+        })
+
+        controller.close()
+      },
+    })
 
     return {
-      stream: textStream
-        .pipeThrough(this.createSSEParser())
-        .pipeThrough(
-          new TransformStream<AgentOSEvent, LanguageModelV2StreamPart>({
-            start(controller) {
-              controller.enqueue({ type: "stream-start", warnings })
-            },
-
-            transform(event, controller) {
-              // Helper to get field with snake_case or camelCase
-              const getField = (obj: Record<string, unknown>, snakeCase: string, camelCase: string) => {
-                return obj[snakeCase] ?? obj[camelCase]
-              }
-
-              const eventType = event.event
-              const eventObj = event as unknown as Record<string, unknown>
-
-              // Log all events for debugging
-              debugLog(`AgentOS event: ${eventType}`, eventObj)
-
-              switch (eventType) {
-                case "RunStarted": {
-                  runId = (getField(eventObj, "run_id", "runId") as string) || generateId()
-                  sessionId = (getField(eventObj, "session_id", "sessionId") as string) || null
-
-                  controller.enqueue({
-                    type: "response-metadata",
-                    id: runId,
-                    timestamp: new Date(((eventObj.created_at as number) || Date.now() / 1000) * 1000),
-                    modelId: (eventObj.model as string) || self.modelId,
-                  })
-                  break
-                }
-
-                case "RunContent": {
-                  // Handle text content
-                  const content = eventObj.content as string | undefined
-                  if (content) {
-                    if (!currentTextId) {
-                      currentTextId = generateId()
-                      controller.enqueue({
-                        type: "text-start",
-                        id: currentTextId,
-                      })
-                    }
-
-                    controller.enqueue({
-                      type: "text-delta",
-                      id: currentTextId,
-                      delta: content,
-                    })
-                  }
-
-                  // Handle reasoning content
-                  const reasoningContent = getField(eventObj, "reasoning_content", "reasoningContent") as
-                    | string
-                    | undefined
-                  if (reasoningContent) {
-                    controller.enqueue({
-                      type: "reasoning-delta",
-                      id: `${runId}:reasoning`,
-                      delta: reasoningContent,
-                    })
-                  }
-                  break
-                }
-
-                case "ToolCallStarted": {
-                  // Tool info can be at top level or nested in 'tool' object
-                  const toolObj = (eventObj.tool as Record<string, unknown>) || eventObj
-                  const toolName =
-                    (getField(toolObj, "tool_name", "toolName") as string) || (toolObj.name as string) || "unknown"
-                  const toolArgs =
-                    (getField(toolObj, "tool_args", "toolArgs") as Record<string, unknown>) ||
-                    (toolObj.args as Record<string, unknown>) ||
-                    {}
-
-                  debugLog(`ToolCallStarted: toolName=${toolName}`)
-
-                  // Close any open text part first
-                  if (currentTextId) {
-                    controller.enqueue({ type: "text-end", id: currentTextId })
-                    currentTextId = null
-                  }
-
-                  // Format tool call like MCP tools: ⚙ tool_name param=value, ...
-                  // Use backticks for the tool name to get code styling
-                  const argsStr = Object.entries(toolArgs)
-                    .map(([k, v]) => {
-                      const valueStr = typeof v === "string" ? v : JSON.stringify(v)
-                      // Truncate long values
-                      const truncated = valueStr.length > 50 ? valueStr.slice(0, 47) + "..." : valueStr
-                      return `${k}=${truncated}`
-                    })
-                    .join(", ")
-
-                  const toolTextId = generateId()
-                  controller.enqueue({ type: "text-start", id: toolTextId })
-                  controller.enqueue({
-                    type: "text-delta",
-                    id: toolTextId,
-                    delta: `\n⚙ \`${toolName}\`${argsStr ? ` ${argsStr}` : ""}\n`,
-                  })
-                  controller.enqueue({ type: "text-end", id: toolTextId })
-                  break
-                }
-
-                case "ToolCallCompleted": {
-                  // Tool executed on the AgentOS server - no need to emit anything
-                  // The agent will continue streaming with the result
-                  debugLog(`ToolCallCompleted`)
-                  break
-                }
-
-                case "RunCompleted": {
-                  finishReason = "stop"
-                  break
-                }
-
-                case "RunContentCompleted": {
-                  // Content stream finished - close any open text part
-                  if (currentTextId) {
-                    controller.enqueue({
-                      type: "text-end",
-                      id: currentTextId,
-                    })
-                    currentTextId = null
-                  }
-                  break
-                }
-
-                case "ModelRequestStarted":
-                case "ModelRequestCompleted":
-                case "ModelResponseStarted":
-                case "ModelResponseCompleted":
-                case "ReasoningStarted":
-                case "ReasoningCompleted": {
-                  // These are informational events - no action needed
-                  debugLog(`Informational event: ${eventType}`)
-                  break
-                }
-
-                case "RunPaused": {
-                  debugLog("RunPaused event received", eventObj)
-
-                  // Emit any content before pause
-                  const pauseContent = eventObj.content as string | undefined
-                  if (pauseContent && currentTextId) {
-                    controller.enqueue({ type: "text-delta", id: currentTextId, delta: pauseContent })
-                  }
-                  if (currentTextId) {
-                    controller.enqueue({ type: "text-end", id: currentTextId })
-                    currentTextId = null
-                  }
-
-                  // Store pause state for processor to handle
-                  pausedState = {
-                    runId: runId || generateId(),
-                    sessionId: sessionId || "",
-                    agentId: self.modelId,
-                    requirements: (eventObj.requirements as AgentOSRequirement[]) || [],
-                    tools: (eventObj.tools as AgentOSPausedState["tools"]) || [],
-                  }
-
-                  // Signal that tools need handling (triggers processor to check providerMetadata)
-                  finishReason = "tool-calls"
-                  break
-                }
-
-                case "RunError": {
-                  finishReason = "error"
-                  const errorMsg = (eventObj.error as string) || "Unknown error"
-                  controller.enqueue({
-                    type: "error",
-                    error: new Error(errorMsg),
-                  })
-                  break
-                }
-
-                default: {
-                  // Log unknown events for debugging
-                  debugLog(`Unknown AgentOS event type: ${eventType}`, eventObj)
-                  break
-                }
-              }
-            },
-
-            flush(controller) {
-              debugLog("Stream flush called", { currentTextId, finishReason, runId, sessionId, pausedState })
-
-              // Close any open text part
-              if (currentTextId) {
-                controller.enqueue({
-                  type: "text-end",
-                  id: currentTextId,
-                })
-              }
-
-              // Serialize pausedState to JSON-compatible format for providerMetadata
-              const serializedPausedState = pausedState
-                ? JSON.parse(JSON.stringify(pausedState))
-                : null
-
-              controller.enqueue({
-                type: "finish",
-                finishReason,
-                usage,
-                providerMetadata: {
-                  agentos: {
-                    runId,
-                    sessionId,
-                    pausedState: serializedPausedState,
-                  },
-                },
-              })
-            },
-          }),
-        ),
+      stream,
       request: { body: { message: userMessage } },
-      response: { headers: responseHeaders },
+      response: { headers: {} },
     }
   }
 
@@ -403,328 +415,82 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
   }
 
   /**
-   * Build headers for the request
+   * Continue a paused run after tool confirmation using SDK client.agents.continue().
    */
-  private buildHeaders(additionalHeaders?: Record<string, string | undefined>): Record<string, string> {
-    const configHeaders =
-      typeof this.config.headers === "function" ? this.config.headers() : this.config.headers ?? {}
-
-    const headers: Record<string, string> = { ...configHeaders }
-
-    if (this.config.apiKey) {
-      headers["Authorization"] = `Bearer ${this.config.apiKey}`
-    }
-
-    if (additionalHeaders) {
-      for (const [key, value] of Object.entries(additionalHeaders)) {
-        if (value !== undefined) {
-          headers[key] = value
-        }
-      }
-    }
-
-    return headers
-  }
-
-  /**
-   * Make a streaming request to the AgentOS API
-   */
-  private async makeStreamingRequest(options: {
-    agentId: string
-    message: string
-    sessionId?: string
-    userId?: string
-    headers?: Record<string, string | undefined>
-    abortSignal?: AbortSignal
-  }): Promise<{ responseHeaders: Record<string, string>; body: ReadableStream<Uint8Array> }> {
-    const url = `${this.config.baseURL}/agents/${options.agentId}/runs`
-
-    // Build form data (AgentOS uses multipart/form-data)
-    const formData = new FormData()
-    formData.append("message", options.message)
-    formData.append("stream", "true")
-
-    if (options.sessionId) {
-      formData.append("session_id", options.sessionId)
-    }
-    if (options.userId) {
-      formData.append("user_id", options.userId)
-    }
-
-    const headers = this.buildHeaders(options.headers)
-    const fetchFn = this.config.fetch ?? fetch
-
-    const response = await fetchFn(url, {
-      method: "POST",
-      headers,
-      body: formData,
-      signal: options.abortSignal,
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      let errorMessage = `AgentOS API error: ${response.status} ${response.statusText}`
-      try {
-        const errorJson = JSON.parse(errorText)
-        if (errorJson.detail) {
-          // Handle detail being either a string or an object
-          const detail =
-            typeof errorJson.detail === "string" ? errorJson.detail : JSON.stringify(errorJson.detail)
-          errorMessage = `AgentOS API error: ${detail}`
-        }
-      } catch {
-        if (errorText) {
-          errorMessage = `AgentOS API error: ${errorText}`
-        }
-      }
-      throw new Error(errorMessage)
-    }
-
-    const responseHeaders: Record<string, string> = {}
-    response.headers.forEach((value, key) => {
-      responseHeaders[key] = value
-    })
-
-    if (!response.body) {
-      throw new Error("No response body received from AgentOS API")
-    }
-
-    return {
-      responseHeaders,
-      body: response.body,
-    }
-  }
-
-  /**
-   * Make a non-streaming request to the AgentOS API
-   */
-  private async makeNonStreamingRequest(options: {
-    agentId: string
-    message: string
-    sessionId?: string
-    userId?: string
-    headers?: Record<string, string | undefined>
-    abortSignal?: AbortSignal
-  }): Promise<{
-    responseHeaders: Record<string, string>
-    response: {
-      content?: string
-      run_id?: string
-      session_id?: string
-      error?: string
-    }
-  }> {
-    const url = `${this.config.baseURL}/agents/${options.agentId}/runs`
-
-    // Build form data (AgentOS uses multipart/form-data)
-    const formData = new FormData()
-    formData.append("message", options.message)
-    formData.append("stream", "false")
-
-    if (options.sessionId) {
-      formData.append("session_id", options.sessionId)
-    }
-    if (options.userId) {
-      formData.append("user_id", options.userId)
-    }
-
-    const headers = this.buildHeaders(options.headers)
-    const fetchFn = this.config.fetch ?? fetch
-
-    const fetchResponse = await fetchFn(url, {
-      method: "POST",
-      headers,
-      body: formData,
-      signal: options.abortSignal,
-    })
-
-    if (!fetchResponse.ok) {
-      const errorText = await fetchResponse.text()
-      let errorMessage = `AgentOS API error: ${fetchResponse.status} ${fetchResponse.statusText}`
-      try {
-        const errorJson = JSON.parse(errorText)
-        if (errorJson.detail) {
-          // Handle detail being either a string or an object
-          const detail =
-            typeof errorJson.detail === "string" ? errorJson.detail : JSON.stringify(errorJson.detail)
-          errorMessage = `AgentOS API error: ${detail}`
-        }
-      } catch {
-        if (errorText) {
-          errorMessage = `AgentOS API error: ${errorText}`
-        }
-      }
-      throw new Error(errorMessage)
-    }
-
-    const responseHeaders: Record<string, string> = {}
-    fetchResponse.headers.forEach((value, key) => {
-      responseHeaders[key] = value
-    })
-
-    const response = (await fetchResponse.json()) as {
-      content?: string
-      run_id?: string
-      session_id?: string
-      error?: string
-    }
-
-    return {
-      responseHeaders,
-      response,
-    }
-  }
-
-  /**
-   * Make a continue request to resume a paused run after tool confirmation.
-   * Returns the raw response body stream for further processing.
-   */
-  async makeContinueRequest(options: {
+  async continueRun(options: {
     runId: string
     sessionId: string
     requirements: AgentOSRequirement[]
-    headers?: Record<string, string | undefined>
-    abortSignal?: AbortSignal
-  }): Promise<{ responseHeaders: Record<string, string>; body: ReadableStream<Uint8Array> }> {
-    const url = `${this.config.baseURL}/agents/${this.modelId}/runs/${options.runId}/continue`
-
-    const headers = this.buildHeaders(options.headers)
-    // Don't set Content-Type - let FormData set it with boundary
-
-    const fetchFn = this.config.fetch ?? fetch
-
-    // Build tools array from requirements - pass full tool_execution objects
-    // The API expects all fields, not just the confirmation fields
-    const tools = options.requirements.map((req) => req.tool_execution)
-
-    debugLog("makeContinueRequest", {
-      url,
-      sessionId: options.sessionId,
-      tools,
-    })
-
-    // Use FormData like the run endpoint
-    const formData = new FormData()
-    formData.append("tools", JSON.stringify(tools))
-    formData.append("session_id", options.sessionId)
-    formData.append("stream", "true")
-
-    const response = await fetchFn(url, {
-      method: "POST",
-      headers,
-      body: formData,
-      signal: options.abortSignal,
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      let errorMessage = `AgentOS API error: ${response.status} ${response.statusText}`
-      try {
-        const errorJson = JSON.parse(errorText)
-        if (errorJson.detail) {
-          // Handle detail being either a string or an object
-          const detail =
-            typeof errorJson.detail === "string" ? errorJson.detail : JSON.stringify(errorJson.detail)
-          errorMessage = `AgentOS API error: ${detail}`
-        }
-      } catch {
-        if (errorText) {
-          errorMessage = `AgentOS API error: ${errorText}`
-        }
-      }
-      throw new Error(errorMessage)
-    }
-
-    const responseHeaders: Record<string, string> = {}
-    response.headers.forEach((value, key) => {
-      responseHeaders[key] = value
-    })
-
-    if (!response.body) {
-      throw new Error("No response body received from AgentOS continue API")
-    }
-
-    return {
-      responseHeaders,
-      body: response.body,
-    }
-  }
-
-  /**
-   * Process a continue stream and return the accumulated text content.
-   * This consumes the SSE stream and collects all text from RunContent events.
-   */
-  async processContinueStream(options: {
-    body: ReadableStream<Uint8Array>
     abortSignal?: AbortSignal
   }): Promise<{
     text: string
     toolResults: Array<{ toolName: string; toolCallId: string; result: unknown }>
     usage: { inputTokens?: number; outputTokens?: number; totalTokens?: number }
   }> {
-    const textDecoder = new TextDecoderStream()
-    const textStream = options.body.pipeThrough(textDecoder as unknown as TransformStream<Uint8Array, string>)
-    const eventStream = textStream.pipeThrough(this.createSSEParser())
+    const client = await this.config.getClient()
 
-    const reader = eventStream.getReader()
+    // Build tools JSON from requirements (pass full tool_execution objects)
+    const tools = options.requirements.map((req) => req.tool_execution)
+    const toolsJSON = JSON.stringify(tools)
+
+    debugLog("continueRun", {
+      agentId: this.modelId,
+      runId: options.runId,
+      sessionId: options.sessionId,
+      tools,
+    })
+
+    // Use SDK continue method (returns AgentStream when streaming)
+    const stream = (await client.agents.continue(this.modelId, options.runId, {
+      tools: toolsJSON,
+      sessionId: options.sessionId,
+      stream: true,
+    })) as AgentStream
+
+    // Accumulate results from stream (same pattern as doStream event handling)
     let text = ""
     const toolResults: Array<{ toolName: string; toolCallId: string; result: unknown }> = []
     const usage: { inputTokens?: number; outputTokens?: number; totalTokens?: number } = {}
 
-    try {
-      while (true) {
-        if (options.abortSignal?.aborted) {
+    for await (const event of stream) {
+      if (options.abortSignal?.aborted) break
+
+      debugLog(`Continue stream event: ${event.event}`, event)
+
+      switch (event.event) {
+        case "RunContent": {
+          const e = event as RunContentEvent
+          const content = typeof e.content === "string" ? e.content : undefined
+          if (content) text += content
           break
         }
-
-        const { done, value } = await reader.read()
-        if (done) break
-
-        const event = value as AgentOSEvent
-        debugLog("Continue stream event", event)
-
-        switch (event.event) {
-          case "RunContent": {
-            const content = (event as unknown as { content: string }).content
-            if (content) {
-              text += content
-            }
-            break
-          }
-
-          case "ToolCallCompleted": {
-            const toolEvent = event as unknown as {
-              tool_call_id: string
-              tool_name: string
-              result: unknown
-            }
+        case "ToolCallCompleted": {
+          const e = event as ToolCallCompletedEvent
+          const toolData = e.tool
+          if (toolData) {
             toolResults.push({
-              toolName: toolEvent.tool_name,
-              toolCallId: toolEvent.tool_call_id,
-              result: toolEvent.result,
+              toolName: toolData.tool_name,
+              toolCallId: toolData.tool_call_id,
+              result: toolData.result,
             })
-            break
           }
-
-          case "ModelRequestCompleted": {
-            const usageEvent = event as unknown as {
-              input_tokens?: number
-              output_tokens?: number
-              total_tokens?: number
-            }
-            usage.inputTokens = usageEvent.input_tokens
-            usage.outputTokens = usageEvent.output_tokens
-            usage.totalTokens = usageEvent.total_tokens
-            break
+          break
+        }
+        case "RunCompleted": {
+          const e = event as RunCompletedEvent
+          if (e.metrics) {
+            usage.inputTokens = e.metrics.input_tokens
+            usage.outputTokens = e.metrics.output_tokens
+            usage.totalTokens = e.metrics.total_tokens
           }
-
-          case "RunCompleted":
-            debugLog("Continue stream completed")
-            break
+          break
+        }
+        case "RunError": {
+          const e = event as RunErrorEvent
+          const errorMsg = (typeof e.content === "string" ? e.content : undefined) || "Unknown error"
+          throw new Error(`AgentOS continue error: ${errorMsg}`)
         }
       }
-    } finally {
-      reader.releaseLock()
     }
 
     debugLog("Continue stream processed", { textLength: text.length, toolResultsCount: toolResults.length, usage })
@@ -733,67 +499,10 @@ export class AgentOSLanguageModel implements LanguageModelV2 {
   }
 
   /**
-   * Create a TransformStream that parses SSE events from a text stream
+   * Cancel an active run using SDK client.agents.cancel().
    */
-  private createSSEParser(): TransformStream<string, AgentOSEvent> {
-    let buffer = ""
-
-    return new TransformStream<string, AgentOSEvent>({
-      transform(chunk, controller) {
-        buffer += chunk
-
-        // Split on double newlines (SSE event delimiter)
-        const events = buffer.split("\n\n")
-
-        // Keep the last part in buffer (it might be incomplete)
-        buffer = events.pop() || ""
-
-        for (const eventText of events) {
-          if (!eventText.trim()) continue
-
-          let eventData = ""
-
-          for (const line of eventText.split("\n")) {
-            if (line.startsWith("data:")) {
-              eventData = line.slice(5).trim()
-            }
-            // event: line is present but we get event type from the data JSON
-          }
-
-          if (eventData) {
-            try {
-              const parsed = JSON.parse(eventData) as AgentOSEvent
-              controller.enqueue(parsed)
-            } catch {
-              // Skip malformed JSON
-              console.warn("Failed to parse AgentOS SSE event:", eventData)
-            }
-          }
-        }
-      },
-
-      flush(controller) {
-        // Process any remaining buffer content
-        if (buffer.trim()) {
-          const lines = buffer.split("\n")
-          let eventData = ""
-
-          for (const line of lines) {
-            if (line.startsWith("data:")) {
-              eventData = line.slice(5).trim()
-            }
-          }
-
-          if (eventData) {
-            try {
-              const parsed = JSON.parse(eventData) as AgentOSEvent
-              controller.enqueue(parsed)
-            } catch {
-              // Skip malformed JSON
-            }
-          }
-        }
-      },
-    })
+  async cancelRun(runId: string): Promise<void> {
+    const client = await this.config.getClient()
+    await client.agents.cancel(this.modelId, runId)
   }
 }
