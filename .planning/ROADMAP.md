@@ -88,10 +88,11 @@ Plans:
   4. CLI welcome/banner text uses openagent branding
   5. User cannot see "opencode" in normal usage
 
-**Plans**: 1 plan
+**Plans**: 2 plans
 
 Plans:
-- [ ] 14-01-PLAN.md — Update CLI scriptName, command descriptions, and console messages to reference "openagent"
+- [x] 14-01-PLAN.md — Update CLI scriptName, command descriptions, and console messages to reference "openagent"
+- [ ] 14-02-PLAN.md — Gap closure: Update TUI tips, notifications, and provider dialogs to reference "openagent"
 
 #### Phase 15: TUI Tips Content
 
