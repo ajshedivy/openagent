@@ -8,7 +8,20 @@ A terminal CLI client for Agno AgentOS. Built as a fork of opencode, openagent l
 
 Connect to AgentOS agents from the terminal with a great user experience — agent discovery, rich interaction, and multi-agent orchestration.
 
-## Current State
+## Current Milestone: v3.0 Deployment & Branding
+
+**Goal:** Make openagent installable via npm (`@worksofadam/openagent`), fully branded, and config-compatible — so users can install, configure an AgentOS endpoint, and chat with agents.
+
+**Package version:** v0.1.0 (first npm publish, decoupled from GSD milestone numbering)
+
+**Target features:**
+- GitHub Actions publishing pipeline for `@worksofadam/openagent` npm package
+- Config compatibility: read both `openagent.json` (preferred) and `opencode.json` (fallback)
+- Branding: replace remaining "opencode" plain text references with "openagent"
+- New openagent-specific tips replacing opencode tips
+- Env vars: keep existing `OPENCODE_*`, new vars use `OPENAGENT_*` prefix
+
+## Previous State
 
 **Version:** v2.0 AgentOS SDK Migration (shipped 2026-02-07)
 
@@ -58,16 +71,24 @@ All custom AgentOS API client code has been replaced with the official SDK. The 
 
 ### Active
 
-(None — next milestone not yet defined)
+<!-- v3.0 Deployment & Branding -->
+
+- [ ] GitHub Actions pipeline publishes `@worksofadam/openagent` to npm
+- [ ] Users can `npm i -g @worksofadam/openagent` and run `openagent`
+- [ ] App reads `openagent.json` config (preferred) with `opencode.json` fallback
+- [ ] All user-facing "opencode" text references replaced with "openagent"
+- [ ] TUI tips updated to openagent-specific content
+- [ ] Existing `OPENCODE_*` env vars preserved; new vars use `OPENAGENT_*`
+- [ ] Git tag `v0.1.0` at release
 
 ### Out of Scope
 
-- opencode-specific branding or features — this is a new project
 - Mobile or web deployment — terminal CLI focus
 - Teams/Workflows hub implementation — deferred (SDK makes this trivial)
-- Full package rebrand (scope, directories, env vars) — deferred
 - Knowledge base integration — not relevant to core agent chat
 - Metrics dashboard — not relevant to core agent chat
+- Renaming existing `OPENCODE_*` env vars — backward compatibility preserved
+- Unscoped `openagent` npm package — scoped `@worksofadam/openagent` only
 
 ## Context
 
@@ -118,6 +139,10 @@ All custom AgentOS API client code has been replaced with the official SDK. The 
 | Keep AI SDK bridge during SDK migration | Preserve Vercel AI SDK integration, minimize blast radius | Good — AgentStream -> LanguageModelV2StreamPart works cleanly |
 | SDK client singleton with lazy init | Single client instance, shared across plugin and provider | Good — clean architecture |
 | getClient required in AgentOSConfig | SDK client as sole transport, no HTTP fields in config | Good — minimal config surface |
+| Decouple GSD milestone from npm version | GSD v3.0 tracks planning, npm v0.1.0 tracks public release | — Pending |
+| Scoped npm package only | `@worksofadam/openagent` — no unscoped alias | — Pending |
+| Dual config file support | `openagent.json` preferred, `opencode.json` fallback for migration | — Pending |
+| Preserve OPENCODE_* env vars | Backward compat, new vars use OPENAGENT_* prefix | — Pending |
 
 ---
-*Last updated: 2026-02-07 after v2.0 milestone*
+*Last updated: 2026-02-08 after v3.0 milestone start*

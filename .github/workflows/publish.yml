@@ -30,8 +30,8 @@ permissions:
 
 jobs:
   publish:
+    if: false
     runs-on: blacksmith-4vcpu-ubuntu-2404
-    if: github.repository == 'anomalyco/opencode'
     steps:
       - uses: actions/checkout@v3
         with:
@@ -91,6 +91,7 @@ jobs:
       version: ${{ steps.publish.outputs.version }}
 
   publish-tauri:
+    if: false
     needs: publish
     continue-on-error: false
     strategy:
@@ -206,10 +207,10 @@ jobs:
           APPLE_API_KEY_PATH: ${{ runner.temp }}/apple-api-key.p8
 
   publish-release:
+    if: false
     needs:
       - publish
       - publish-tauri
-    if: needs.publish.outputs.tag
     runs-on: blacksmith-4vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v3
