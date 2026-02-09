@@ -51,7 +51,7 @@ Progress: [███████████████████████
 - Phase 12: 1 plan (41 seconds, 1 task, 1 file)
 - Phase 13: 1 plan (119 seconds, 2 tasks, 2 files)
 - Phase 14: 2 plans (181 seconds plan 01 + 184 seconds plan 02, 7 tasks total, 14 files)
-- Phase 15: 1 plan (CI/CD cleanup)
+- Phase 15: 1 plan (6 tasks, 20 files — CI/CD cleanup: 17 workflows disabled, 3 updated)
 - Phase 16: 1 plan (3 tasks, 3 files — publishing pipeline)
 - Requirements: 16 total
 - Target: First npm publish
@@ -74,6 +74,7 @@ Recent decisions affecting v3.0:
 - Internal identifiers (provider IDs, theme names) remain 'opencode' (not user-facing) (Phase 14-01)
 - TUI tips, notifications, and dialogs all reference 'openagent' commands and branding (Phase 14-02)
 - Config file tips recommend 'openagent.json' as preferred, directory tips use '.openagent/' paths (Phase 14-02)
+- 17 upstream workflows disabled via `if: false` (no files deleted), 3 CI workflows updated for fork (Phase 15-01)
 - Publish workflow triggers on v* tags, uses NPM_TOKEN secret (Phase 16-01)
 - CI workflow runs typecheck + build on PRs to main (Phase 16-01)
 - Package no longer private, files field controls npm publish contents (Phase 16-01)
