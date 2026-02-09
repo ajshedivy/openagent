@@ -2,34 +2,21 @@
 
 ## What This Is
 
-A terminal CLI client for Agno AgentOS. Built as a fork of opencode, openagent leverages the existing TUI infrastructure to provide a rich terminal experience for connecting to and interacting with AgentOS agents — now powered entirely by the official `@worksofadam/agentos-sdk`.
+A terminal CLI client for Agno AgentOS. Built as a fork of opencode, openagent leverages the existing TUI infrastructure to provide a rich terminal experience for connecting to and interacting with AgentOS agents — powered by the official `@worksofadam/agentos-sdk`, with full branding, dual config support, and local installability.
 
 ## Core Value
 
 Connect to AgentOS agents from the terminal with a great user experience — agent discovery, rich interaction, and multi-agent orchestration.
 
-## Current Milestone: v3.0 Deployment & Branding
+## Current State
 
-**Goal:** Make openagent installable via npm (`@worksofadam/openagent`), fully branded, and config-compatible — so users can install, configure an AgentOS endpoint, and chat with agents.
+**Version:** v3.0 Deployment & Branding (shipped 2026-02-09)
 
-**Package version:** v0.1.0 (first npm publish, decoupled from GSD milestone numbering)
-
-**Target features:**
-- GitHub Actions publishing pipeline for `@worksofadam/openagent` npm package
-- Config compatibility: read both `openagent.json` (preferred) and `opencode.json` (fallback)
-- Branding: replace remaining "opencode" plain text references with "openagent"
-- New openagent-specific tips replacing opencode tips
-- Env vars: keep existing `OPENCODE_*`, new vars use `OPENAGENT_*` prefix
-
-## Previous State
-
-**Version:** v2.0 AgentOS SDK Migration (shipped 2026-02-07)
-
-All custom AgentOS API client code has been replaced with the official SDK. The full agent chat workflow is verified end-to-end: discovery -> connect -> stream -> tool confirmation -> continue/cancel. Zero custom fetch/SSE/types code remains.
+Openagent is fully branded, config-compatible, and locally installable. Users can clone the repo, run `install.sh`, and get a working `openagent` binary. The npm publishing pipeline is prepared but deferred.
 
 **Codebase:**
-- 38+ files modified across v2.0
-- 253,293+ lines TypeScript total
+- 66+ files modified across v3.0
+- ~257,000 lines TypeScript total
 - Repository: github.com/ajshedivy/openagent
 
 ## Requirements
@@ -69,17 +56,20 @@ All custom AgentOS API client code has been replaced with the official SDK. The 
 - Full agent chat workflow verified end-to-end — v2.0
 - SDK client shared as singleton across plugin and provider layers — v2.0
 
-### Active
-
 <!-- v3.0 Deployment & Branding -->
 
-- [ ] GitHub Actions pipeline publishes `@worksofadam/openagent` to npm
-- [ ] Users can `npm i -g @worksofadam/openagent` and run `openagent`
-- [ ] App reads `openagent.json` config (preferred) with `opencode.json` fallback
-- [ ] All user-facing "opencode" text references replaced with "openagent"
-- [ ] TUI tips updated to openagent-specific content
-- [ ] Existing `OPENCODE_*` env vars preserved; new vars use `OPENAGENT_*`
-- [ ] Git tag `v0.1.0` at release
+- Package identity set to @worksofadam/openagent v0.1.0 — v3.0
+- App reads openagent.json config (preferred) with opencode.json fallback — v3.0
+- All user-facing "opencode" text replaced with "openagent" — v3.0
+- TUI tips, notifications, and dialogs reference "openagent" — v3.0
+- Existing OPENCODE_* env vars preserved — v3.0
+- GitHub Actions publishing pipeline created — v3.0
+- CI workflows updated for fork (typecheck, build, PR standards) — v3.0
+- Local install via install.sh (build-from-source) — v3.0
+
+### Active
+
+(No active milestone — define next with `/gsd:new-milestone`)
 
 ### Out of Scope
 
@@ -89,6 +79,7 @@ All custom AgentOS API client code has been replaced with the official SDK. The 
 - Metrics dashboard — not relevant to core agent chat
 - Renaming existing `OPENCODE_*` env vars — backward compatibility preserved
 - Unscoped `openagent` npm package — scoped `@worksofadam/openagent` only
+- npm `i -g @worksofadam/openagent` installability — deferred (local install via install.sh)
 
 ## Context
 
@@ -112,13 +103,15 @@ All custom AgentOS API client code has been replaced with the official SDK. The 
 - Old branches retain 8,464-commit opencode history
 - SDK installed from GitHub (not npm registry) — needs publishing
 - Non-null assertions for API-guaranteed fields during migration
+- npm publishing workflow created but not tested end-to-end
 
 **Future scope:**
+- npm publishing (@worksofadam/openagent to registry)
 - Teams hub implementation (via `client.teams.*`)
 - Workflows hub implementation (via `client.workflows.*`)
 - Sessions management (via `client.sessions.*`)
-- Metrics dashboard (via `client.metrics.*`)
-- Full rebrand (package scope, directories, env vars)
+- Platform-specific binary packages
+- Full internal rebrand (package scope, directories, env vars)
 
 ## Constraints
 
@@ -139,10 +132,12 @@ All custom AgentOS API client code has been replaced with the official SDK. The 
 | Keep AI SDK bridge during SDK migration | Preserve Vercel AI SDK integration, minimize blast radius | Good — AgentStream -> LanguageModelV2StreamPart works cleanly |
 | SDK client singleton with lazy init | Single client instance, shared across plugin and provider | Good — clean architecture |
 | getClient required in AgentOSConfig | SDK client as sole transport, no HTTP fields in config | Good — minimal config surface |
-| Decouple GSD milestone from npm version | GSD v3.0 tracks planning, npm v0.1.0 tracks public release | — Pending |
-| Scoped npm package only | `@worksofadam/openagent` — no unscoped alias | — Pending |
-| Dual config file support | `openagent.json` preferred, `opencode.json` fallback for migration | — Pending |
-| Preserve OPENCODE_* env vars | Backward compat, new vars use OPENAGENT_* prefix | — Pending |
+| Decouple GSD milestone from npm version | GSD v3.0 tracks planning, npm v0.1.0 tracks public release | Good — clear separation |
+| Scoped npm package only | `@worksofadam/openagent` — no unscoped alias | Good — simple namespace |
+| Dual config file support | `openagent.json` preferred, `opencode.json` fallback for migration | Good — smooth migration path |
+| Preserve OPENCODE_* env vars | Backward compat, new vars use OPENAGENT_* prefix | Good — no breaking changes |
+| Pivot from npm publish to local install | install.sh covers immediate installability; npm deferred | Good — practical for v0.1.0 |
+| Disable upstream workflows via `if: false` | Preserves files for future reference, easy to re-enable | Good — non-destructive |
 
 ---
-*Last updated: 2026-02-08 after v3.0 milestone start*
+*Last updated: 2026-02-09 after v3.0 milestone*

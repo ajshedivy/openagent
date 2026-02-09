@@ -1,5 +1,33 @@
 # Project Milestones: openagent
 
+## v3.0 Deployment & Branding (Shipped: 2026-02-09)
+
+**Delivered:** Made openagent fully branded, config-compatible, and locally installable — users can clone the repo, run `install.sh`, and get a working `openagent` binary.
+
+**Phases completed:** 12-18 (7 plans total, Phase 17 dropped — npm publish deferred)
+
+**Key accomplishments:**
+
+- Established package identity as @worksofadam/openagent v0.1.0 with complete npm metadata
+- Added dual config file support — reads openagent.json (preferred) with opencode.json fallback
+- Replaced all user-facing "opencode" text with "openagent" across CLI, TUI tips, notifications, and dialogs
+- Disabled 17 upstream CI workflows, updated 3 essential workflows for fork
+- Created GitHub Actions publishing pipeline for npm publish on v* tags
+- Created install.sh build-from-source script for local installation to ~/.openagent/bin/
+
+**Stats:**
+
+- 66 files created/modified
+- 3,917 lines added, 165 deleted
+- 6 phases executed (Phase 17 dropped), 7 plans, 16 requirements
+- 1 day (2026-02-08)
+
+**Git range:** `54222b8a9` → `d48ef0026`
+
+**What's next:** npm publishing, platform binaries, or new feature milestones
+
+---
+
 ## v2.0 AgentOS SDK Migration (Shipped: 2026-02-07)
 
 **Delivered:** Replaced all custom AgentOS API client code with `@worksofadam/agentos-sdk`, eliminating ~1000 lines of custom fetch/SSE/types code and verifying full agent chat workflow end-to-end.
