@@ -175,7 +175,7 @@ Plans:
 | 15. GitHub Actions CI/CD Cleanup | v3.0 | 1/1 | Complete | 2026-02-09 |
 | 16. Publishing Pipeline | v3.0 | 1/1 | Complete | 2026-02-09 |
 | 17. Release Verification | v3.0 | 0/TBD | Not started | - |
-| 18. Local Install Script | v3.0 | 0/1 | Planned | - |
+| 18. Local Install Script | v3.0 | 1/1 | Complete | 2026-02-08 |
 
 #### Phase 18: Local Install Script
 
@@ -195,8 +195,8 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 18-01-PLAN.md — Create install.sh (build-from-source script using bun build --compile, install to ~/.openagent/bin/)
+- [x] 18-01-PLAN.md — Create install.sh (build-from-source script using bun build --compile, install to ~/.openagent/bin/)
 
 ---
 *Roadmap created: 2026-01-31*
-*Last updated: 2026-02-08 (Phase 18 planned)*
+*Last updated: 2026-02-08 (Phase 18 complete)*
