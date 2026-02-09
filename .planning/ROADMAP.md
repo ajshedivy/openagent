@@ -171,10 +171,31 @@ Plans:
 | 11. E2E Verification & Type Cleanup | v2.0 | 2/2 | Complete | 2026-02-07 |
 | 12. Package Configuration | v3.0 | 1/1 | Complete | 2026-02-08 |
 | 13. Config File Dual Support | v3.0 | 1/1 | Complete | 2026-02-08 |
-| 14. User-Facing Text Branding | v3.0 | 0/1 | Not started | - |
-| 15. GitHub Actions CI/CD Cleanup | v3.0 | 0/1 | Planned | - |
-| 16. Publishing Pipeline | v3.0 | 0/TBD | Not started | - |
+| 14. User-Facing Text Branding | v3.0 | 2/2 | Complete | 2026-02-08 |
+| 15. GitHub Actions CI/CD Cleanup | v3.0 | 1/1 | Complete | 2026-02-09 |
+| 16. Publishing Pipeline | v3.0 | 1/1 | Complete | 2026-02-09 |
 | 17. Release Verification | v3.0 | 0/TBD | Not started | - |
+| 18. Local Install Script | v3.0 | 0/TBD | Not started | - |
+
+#### Phase 18: Local Install Script
+
+**Goal**: Users can clone the repo and run `install.sh` to build openagent with platform-specific Bun-compiled binaries and get a working local `openagent` executable
+
+**Depends on**: Phase 16
+
+**Requirements**: REL-01 (local installability)
+
+**Success Criteria** (what must be TRUE):
+  1. `install.sh` exists at repo root and is executable
+  2. Running `install.sh` builds openagent for the current platform via `bun build --compile`
+  3. After install, `openagent` command is available (symlinked or in PATH)
+  4. Built binary runs correctly and shows version
+  5. Script handles missing dependencies (Bun not installed, etc.) with clear errors
+
+**Plans**: TBD
+
+Plans:
+- [ ] 18-01: TBD (run /gsd:plan-phase 18 to break down)
 
 ---
 *Roadmap created: 2026-01-31*

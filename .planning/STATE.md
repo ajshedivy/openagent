@@ -6,16 +6,16 @@ See: .planning/PROJECT.md (updated 2026-02-08)
 
 **Core value:** Connect to AgentOS agents from the terminal with a great user experience — agent discovery, rich interaction, and multi-agent orchestration.
 
-**Current focus:** Phase 16 - Publishing Pipeline
+**Current focus:** Phase 18 - Local Install Script
 
 ## Current Position
 
-Phase: 16 of 17 (Publishing Pipeline)
-Plan: 1 of 1 in current phase
-Status: Complete
-Last activity: 2026-02-09 — Phase 16 Plan 01 complete (publishing pipeline)
+Phase: 16 of 18 (Publishing Pipeline — complete, pivoting to local install)
+Plan: N/A
+Status: Phase 18 added, ready for planning
+Last activity: 2026-02-09 — UAT complete for phases 15-16, Phase 18 added
 
-Progress: [██████████████████████████░░] 94% (16/17 phases complete)
+Progress: [████████████████████████░░░░] 89% (16/18 phases complete)
 
 ## Milestone History
 
@@ -24,7 +24,7 @@ Progress: [███████████████████████
 | v1.0 Minimal Divergence | 1-2 | Complete | 2026-01-31 |
 | v1.1 AgentOS Hub | 3-6 | Complete | 2026-02-01 |
 | v2.0 AgentOS SDK Migration | 7-11 | Complete | 2026-02-07 |
-| v3.0 Deployment & Branding | 12-17 | In progress | - |
+| v3.0 Deployment & Branding | 12-18 | In progress | - |
 
 ## Performance Metrics
 
@@ -46,7 +46,7 @@ Progress: [███████████████████████
 - Duration: 7 days (2026-01-31 → 2026-02-07)
 
 **v3.0 (in progress):**
-- Phases: 6 (12-17)
+- Phases: 7 (12-18)
 - Plans: 6 complete
 - Phase 12: 1 plan (41 seconds, 1 task, 1 file)
 - Phase 13: 1 plan (119 seconds, 2 tasks, 2 files)
@@ -54,7 +54,7 @@ Progress: [███████████████████████
 - Phase 15: 1 plan (6 tasks, 20 files — CI/CD cleanup: 17 workflows disabled, 3 updated)
 - Phase 16: 1 plan (3 tasks, 3 files — publishing pipeline)
 - Requirements: 16 total
-- Target: First npm publish
+- Target: Local installability (npm publish deferred to future milestone)
 
 ## Accumulated Context
 
@@ -78,6 +78,12 @@ Recent decisions affecting v3.0:
 - Publish workflow triggers on v* tags, uses NPM_TOKEN secret (Phase 16-01)
 - CI workflow runs typecheck + build on PRs to main (Phase 16-01)
 - Package no longer private, files field controls npm publish contents (Phase 16-01)
+- Pivot from npm publishing to local install script for v0.1.0 (Phase 18 added)
+- npm publishing deferred to future milestone
+
+### Roadmap Evolution
+
+- Phase 18 added: Local Install Script (git clone + install.sh builds platform binary)
 
 ### Pending Todos
 
@@ -85,14 +91,14 @@ None.
 
 ### Blockers/Concerns
 
-None. Phase 16 complete.
+None. Phases 15-16 UAT complete, Phase 18 ready for planning.
 
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: Completed 16-01-PLAN.md (publishing pipeline)
+Stopped at: UAT for phases 15-16, added Phase 18 (Local Install Script)
 Resume file: None
-Next action: Phase 16 complete, ready for Phase 17
+Next action: Plan Phase 18 (/gsd:plan-phase 18)
 
 ---
-*State updated: 2026-02-09 — Phase 16-01 Complete (Publishing Pipeline)*
+*State updated: 2026-02-09 — Phase 18 added (Local Install Script)*
