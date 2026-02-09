@@ -5,7 +5,7 @@
 - v1.0 Minimal Divergence - Phases 1-2 (shipped 2026-01-31)
 - v1.1 AgentOS Hub - Phases 3-6 (shipped 2026-02-01)
 - v2.0 AgentOS SDK Migration - Phases 7-11 (shipped 2026-02-07)
-- v3.0 Deployment & Branding - Phases 12-17 (in progress)
+- v3.0 Deployment & Branding - Phases 12-18 (in progress)
 
 ## Phases
 
@@ -175,7 +175,7 @@ Plans:
 | 15. GitHub Actions CI/CD Cleanup | v3.0 | 1/1 | Complete | 2026-02-09 |
 | 16. Publishing Pipeline | v3.0 | 1/1 | Complete | 2026-02-09 |
 | 17. Release Verification | v3.0 | 0/TBD | Not started | - |
-| 18. Local Install Script | v3.0 | 0/TBD | Not started | - |
+| 18. Local Install Script | v3.0 | 0/1 | Planned | - |
 
 #### Phase 18: Local Install Script
 
@@ -192,11 +192,11 @@ Plans:
   4. Built binary runs correctly and shows version
   5. Script handles missing dependencies (Bun not installed, etc.) with clear errors
 
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 18-01: TBD (run /gsd:plan-phase 18 to break down)
+- [ ] 18-01-PLAN.md — Create install.sh (build-from-source script using bun build --compile, install to ~/.openagent/bin/)
 
 ---
 *Roadmap created: 2026-01-31*
-*Last updated: 2026-02-09 (Phase 15 planned)*
+*Last updated: 2026-02-08 (Phase 18 planned)*
