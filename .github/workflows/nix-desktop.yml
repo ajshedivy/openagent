@@ -22,6 +22,7 @@ on:
 
 jobs:
   build-desktop:
+    if: false
     strategy:
       fail-fast: false
       matrix:
