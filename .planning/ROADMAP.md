@@ -94,19 +94,20 @@ Plans:
 - [x] 14-01-PLAN.md — Update CLI scriptName, command descriptions, and console messages to reference "openagent"
 - [ ] 14-02-PLAN.md — Gap closure: Update TUI tips, notifications, and provider dialogs to reference "openagent"
 
-#### Phase 15: TUI Tips Content
+#### Phase 15: GitHub Actions CI/CD Cleanup
 
-**Goal**: Tips and hints reflect openagent features and AgentOS focus
+**Goal**: Disable irrelevant opencode-specific workflows and configure essential CI workflows for the openagent fork
 
 **Depends on**: Phase 14
 
 **Requirements**: BRD-02
 
 **Success Criteria** (what must be TRUE):
-  1. Tips reference openagent-specific features (AgentOS, /agno)
-  2. Tips no longer reference opencode-only features
-  3. Tips content aligns with AgentOS workflow
-  4. Tips display correctly in TUI
+  1. Opencode-specific workflows are disabled (not removed) via `if: false` condition
+  2. Essential PR workflows (typecheck, test) trigger on PRs to main branch
+  3. PR standards workflow has correct team whitelist
+  4. Maintenance workflows (stale issues/PRs) work for the fork
+  5. No workflow runs fail due to missing opencode-specific secrets or repo checks
 
 **Plans**: TBD
 
@@ -115,23 +116,23 @@ Plans:
 
 #### Phase 16: Publishing Pipeline
 
-**Goal**: GitHub Actions automatically builds and publishes package to npm on release tags
+**Goal**: GitHub Actions workflow builds and publishes @worksofadam/openagent to npm on release tags
 
 **Depends on**: Phase 15
 
 **Requirements**: PUB-01, PUB-02, PUB-05
 
 **Success Criteria** (what must be TRUE):
-  1. GitHub Actions workflow builds package on push/tag
-  2. Workflow publishes to npm on v* tags with correct credentials
+  1. New publish workflow builds package on v* tags
+  2. Workflow publishes @worksofadam/openagent to npm with correct credentials
   3. Published package includes only necessary files (no dev artifacts)
-  4. Package files filter excludes .planning, tests, and dev configs
-  5. Build and publish steps succeed in CI
+  4. PR workflow runs typecheck and build validation
+  5. Workflow is simple and maintainable (single workflow file)
 
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 16-01: TBD
+- [ ] 16-01-PLAN.md — Create publish-openagent.yml (npm publish on v* tags), ci.yml (PR quality gate), and fix package.json for publishing
 
 #### Phase 17: Release Verification
 
