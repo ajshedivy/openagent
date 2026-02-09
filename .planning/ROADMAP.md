@@ -109,10 +109,10 @@ Plans:
   4. Maintenance workflows (stale issues/PRs) work for the fork
   5. No workflow runs fail due to missing opencode-specific secrets or repo checks
 
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 15-01: TBD
+- [ ] 15-01-PLAN.md — Disable 17 opencode-specific workflows and update test/typecheck/pr-standards for fork
 
 #### Phase 16: Publishing Pipeline
 
@@ -172,10 +172,10 @@ Plans:
 | 12. Package Configuration | v3.0 | 1/1 | Complete | 2026-02-08 |
 | 13. Config File Dual Support | v3.0 | 1/1 | Complete | 2026-02-08 |
 | 14. User-Facing Text Branding | v3.0 | 0/1 | Not started | - |
-| 15. TUI Tips Content | v3.0 | 0/TBD | Not started | - |
+| 15. GitHub Actions CI/CD Cleanup | v3.0 | 0/1 | Planned | - |
 | 16. Publishing Pipeline | v3.0 | 0/TBD | Not started | - |
 | 17. Release Verification | v3.0 | 0/TBD | Not started | - |
 
 ---
 *Roadmap created: 2026-01-31*
-*Last updated: 2026-02-08 (Phase 14 planned)*
+*Last updated: 2026-02-09 (Phase 15 planned)*
