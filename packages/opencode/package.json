@@ -15,7 +15,14 @@
   "keywords": ["cli", "tui", "terminal", "ai", "agents", "agno", "agentos", "openagent"],
   "type": "module",
   "license": "MIT",
-  "private": true,
+  "files": [
+    "bin/",
+    "dist/",
+    "src/",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "typecheck": "tsgo --noEmit",
     "test": "bun test",
