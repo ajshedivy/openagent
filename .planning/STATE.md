@@ -11,9 +11,9 @@ See: .planning/PROJECT.md (updated 2026-02-08)
 ## Current Position
 
 Phase: 14 of 17 (User-Facing Text Branding)
-Plan: 1 of 1 in current phase
+Plan: 2 of 2 in current phase
 Status: Complete
-Last activity: 2026-02-08 — Phase 14 Plan 01 complete
+Last activity: 2026-02-09 — Phase 14 Plan 02 complete (gap closure)
 
 Progress: [██████████████████████░░░░░░] 82% (14/17 phases complete)
 
@@ -47,10 +47,10 @@ Progress: [██████████████████████░
 
 **v3.0 (in progress):**
 - Phases: 6 (12-17)
-- Plans: 3 complete
+- Plans: 4 complete
 - Phase 12: 1 plan (41 seconds, 1 task, 1 file)
 - Phase 13: 1 plan (119 seconds, 2 tasks, 2 files)
-- Phase 14: 1 plan (181 seconds, 3 tasks, 10 files)
+- Phase 14: 2 plans (181 seconds plan 01 + 184 seconds plan 02, 7 tasks total, 14 files)
 - Requirements: 16 total
 - Target: First npm publish
 
@@ -70,6 +70,8 @@ Recent decisions affecting v3.0:
 - OPENCODE_* env vars remain unchanged (backward compatibility for existing deployments) (Phase 13-01)
 - User-facing text consistently uses lowercase 'openagent' (not 'OpenAgent' or title case) (Phase 14-01)
 - Internal identifiers (provider IDs, theme names) remain 'opencode' (not user-facing) (Phase 14-01)
+- TUI tips, notifications, and dialogs all reference 'openagent' commands and branding (Phase 14-02)
+- Config file tips recommend 'openagent.json' as preferred, directory tips use '.openagent/' paths (Phase 14-02)
 
 ### Pending Todos
 
@@ -77,14 +79,14 @@ None.
 
 ### Blockers/Concerns
 
-None. Phase 14 complete.
+None. Phase 14 complete (both plans).
 
 ## Session Continuity
 
-Last session: 2026-02-08
-Stopped at: Completed 14-01-PLAN.md
+Last session: 2026-02-09
+Stopped at: Completed 14-02-PLAN.md (gap closure)
 Resume file: None
-Next action: Phase 14 complete, ready for Phase 15
+Next action: Phase 14 fully complete, ready for Phase 15
 
 ---
-*State updated: 2026-02-08 — Phase 14-01 Complete*
+*State updated: 2026-02-09 — Phase 14-02 Complete (Gap Closure)*
