@@ -1,5 +1,6 @@
 import type { LanguageModelV2 } from "@ai-sdk/provider"
 import { AgentOSLanguageModel } from "./agentos-language-model"
+import { AgentOSTeamLanguageModel } from "./agentos-team-language-model"
 import { getAgentOSClient } from "./agentos-client"
 import type { AgentOSProviderSettings } from "./agentos-types"
 
@@ -42,8 +43,17 @@ export interface AgentOSProvider {
 export function createAgentOS(options: AgentOSProviderSettings): AgentOSProvider {
   const providerName = options.name ?? "agentos"
 
-  const createLanguageModel = (agentId: string): LanguageModelV2 => {
-    return new AgentOSLanguageModel(agentId, {
+  const createLanguageModel = (modelId: string): LanguageModelV2 => {
+    // Route team: prefixed IDs to the team language model
+    if (modelId.startsWith("team:")) {
+      const teamId = modelId.slice("team:".length)
+      return new AgentOSTeamLanguageModel(teamId, {
+        provider: `${providerName}.chat`,
+        getClient: getAgentOSClient,
+      })
+    }
+
+    return new AgentOSLanguageModel(modelId, {
       provider: `${providerName}.chat`,
       getClient: getAgentOSClient,
     })

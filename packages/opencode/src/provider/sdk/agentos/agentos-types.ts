@@ -18,6 +18,38 @@ export type AgentResponse = components["schemas"]["AgentResponse"]
  */
 export type ModelResponse = components["schemas"]["ModelResponse"]
 
+/**
+ * Team response from SDK.
+ * Re-exported from SDK components["schemas"]["TeamResponse"].
+ */
+export type TeamResponse = components["schemas"]["TeamResponse"]
+
+// ============================================================================
+// Team Streaming Types
+// ============================================================================
+
+/**
+ * Info about a team member during streaming.
+ */
+export interface TeamMemberInfo {
+  id: string
+  name: string
+  status: "running" | "completed" | "error"
+}
+
+/**
+ * State tracked during a team streaming run.
+ * Tracks delegations, member text, and tool calls.
+ */
+export interface TeamStreamState {
+  teamId: string
+  runId: string | null
+  sessionId: string | null
+  currentMember: TeamMemberInfo | null
+  members: Map<string, TeamMemberInfo>
+  memberText: Map<string, string>
+}
+
 // ============================================================================
 // Application-Specific Types (Tool Confirmation Workflow)
 // ============================================================================

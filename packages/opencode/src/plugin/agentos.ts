@@ -1,5 +1,5 @@
 import type { Hooks, PluginInput } from "@opencode-ai/plugin"
-import type { AgentResponse } from "../provider/sdk/agentos/agentos-types"
+import type { AgentResponse, TeamResponse } from "../provider/sdk/agentos/agentos-types"
 import { getAgentOSClient } from "../provider/sdk/agentos/agentos-client"
 import { APIError, AuthenticationError } from "@worksofadam/agentos-sdk"
 import { Config } from "../config/config"
@@ -75,14 +75,23 @@ export async function AgentOSAuthPlugin(_input: PluginInput): Promise<Hooks> {
             return {}
           }
 
-          // Fetch agents
-          const agents = await client.agents.list()
+          // Fetch agents and teams
+          const [agents, teams] = await Promise.all([
+            client.agents.list(),
+            client.teams.list().catch(() => [] as TeamResponse[]),
+          ])
 
           // Map each agent to a model in the provider
           if (provider && provider.models) {
             for (const agent of agents) {
               const model = agentToModel(agent, baseURL)
               provider.models[agent.id!] = model
+            }
+
+            // Map each team to a model with team: prefix
+            for (const team of teams) {
+              const model = teamToModel(team, baseURL)
+              provider.models[`team:${team.id!}`] = model
             }
           }
 
@@ -184,6 +193,61 @@ function agentToModel(
         role: agent.role,
         model: agent.model,
         introduction: agent.introduction,
+      },
+    },
+    headers: {},
+    release_date: new Date().toISOString().split("T")[0],
+  }
+}
+
+/**
+ * Convert an AgentOS team to an OpenCode provider model
+ */
+function teamToModel(
+  team: TeamResponse,
+  baseURL: string,
+): ReturnType<typeof agentToModel> {
+  const members = (team.members ?? []).map((m) => ({
+    id: m.id,
+    name: m.name,
+  }))
+
+  return {
+    id: `team:${team.id!}`,
+    providerID: "agentos",
+    name: team.name || team.id!,
+    api: {
+      id: `team:${team.id!}`,
+      url: baseURL,
+      npm: "@opencode/agentos",
+    },
+    cost: {
+      input: 0,
+      output: 0,
+      cache: { read: 0, write: 0 },
+    },
+    limit: {
+      context: 128000,
+      output: 4096,
+    },
+    capabilities: {
+      temperature: false,
+      reasoning: false,
+      attachment: false,
+      toolcall: false,
+      input: { text: true, audio: false, image: false, video: false, pdf: false },
+      output: { text: true, audio: false, image: false, video: false, pdf: false },
+      interleaved: false,
+    },
+    status: "active",
+    options: {
+      isTeam: true,
+      teamMetadata: {
+        description: team.description,
+        role: team.role,
+        model: team.model,
+        introduction: team.introduction,
+        members,
       },
     },
     headers: {},

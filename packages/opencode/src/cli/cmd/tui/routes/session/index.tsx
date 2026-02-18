@@ -1335,34 +1335,108 @@ function ReasoningPart(props: { last: boolean; part: ReasoningPart; message: Ass
 }
 
 function TextPart(props: { last: boolean; part: TextPart; message: AssistantMessage }) {
+  const teamMember = createMemo(() => {
+    const meta = props.part.metadata as Record<string, any> | undefined
+    return meta?.agentos?.teamMember as { name: string; id: string; task?: string } | undefined
+  })
+
+  return (
+    <Show when={props.part.text.trim()}>
+      <Show when={teamMember()} fallback={<TextPartContent part={props.part} />}>
+        <TeamMemberBlock member={teamMember()!} part={props.part} />
+      </Show>
+    </Show>
+  )
+}
+
+function TextPartContent(props: { part: TextPart }) {
   const ctx = use()
   const { theme, syntax } = useTheme()
   return (
-    <Show when={props.part.text.trim()}>
-      <box id={"text-" + props.part.id} paddingLeft={3} marginTop={1} flexShrink={0}>
-        <Switch>
-          <Match when={Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
-            <markdown
-              syntaxStyle={syntax()}
-              streaming={true}
-              content={props.part.text.trim()}
-              conceal={ctx.conceal()}
-            />
-          </Match>
-          <Match when={!Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
-            <code
-              filetype="markdown"
-              drawUnstyledText={false}
-              streaming={true}
-              syntaxStyle={syntax()}
-              content={props.part.text.trim()}
-              conceal={ctx.conceal()}
-              fg={theme.text}
-            />
-          </Match>
-        </Switch>
-      </box>
-    </Show>
+    <box id={"text-" + props.part.id} paddingLeft={3} marginTop={1} flexShrink={0}>
+      <Switch>
+        <Match when={Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
+          <markdown
+            syntaxStyle={syntax()}
+            streaming={true}
+            content={props.part.text.trim()}
+            conceal={ctx.conceal()}
+          />
+        </Match>
+        <Match when={!Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
+          <code
+            filetype="markdown"
+            drawUnstyledText={false}
+            streaming={true}
+            syntaxStyle={syntax()}
+            content={props.part.text.trim()}
+            conceal={ctx.conceal()}
+            fg={theme.text}
+          />
+        </Match>
+      </Switch>
+    </box>
+  )
+}
+
+function TeamMemberBlock(props: { member: { name: string; id: string; task?: string }; part: TextPart }) {
+  const ctx = use()
+  const { theme, syntax } = useTheme()
+  const [expanded, setExpanded] = createSignal(true)
+
+  const preview = createMemo(() => {
+    const text = props.part.text.trim()
+    if (text.length <= 100) return text
+    return text.slice(0, 97) + "..."
+  })
+
+  return (
+    <box
+      id={"text-" + props.part.id}
+      border={["left"]}
+      paddingTop={1}
+      paddingBottom={1}
+      paddingLeft={2}
+      marginTop={1}
+      backgroundColor={theme.backgroundPanel}
+      customBorderChars={SplitBorder.customBorderChars}
+      borderColor={theme.accent}
+      onMouseUp={() => setExpanded((prev) => !prev)}
+    >
+      <text fg={theme.accent} attributes={TextAttributes.BOLD}>
+        {expanded() ? "▼" : "▶"} {props.member.name}
+      </text>
+      <Show when={expanded()}>
+        <box paddingLeft={2} marginTop={0}>
+          <Switch>
+            <Match when={Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
+              <markdown
+                syntaxStyle={syntax()}
+                streaming={true}
+                content={props.part.text.trim()}
+                conceal={ctx.conceal()}
+              />
+            </Match>
+            <Match when={!Flag.OPENCODE_EXPERIMENTAL_MARKDOWN}>
+              <code
+                filetype="markdown"
+                drawUnstyledText={false}
+                streaming={true}
+                syntaxStyle={syntax()}
+                content={props.part.text.trim()}
+                conceal={ctx.conceal()}
+                fg={theme.text}
+              />
+            </Match>
+          </Switch>
+        </box>
+      </Show>
+      <Show when={!expanded()}>
+        <text fg={theme.textMuted} paddingLeft={2}>
+          {preview()}
+        </text>
+      </Show>
+    </box>
   )
 }
 
