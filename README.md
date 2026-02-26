@@ -51,6 +51,7 @@ AgentOS handles the infrastructure so you can focus on building agents. Learn mo
 
 Openagent connects you to the AgentOS ecosystem:
 
+- **Agents & Teams** — Connect to individual agents or multi-agent teams (Workflows coming soon)
 - **AgentOS Hub** — Browse and connect to available agents via `/agno` command
 - **Agent Chat** — Interact with agents using a polished terminal interface
 - **Tool Confirmation** — Review and approve agent tool calls before execution
@@ -67,24 +68,31 @@ Openagent connects you to the AgentOS ecosystem:
 </p>
 <p align="center"><em>Agent Details — View model and tool configuration</em></p>
 
+<p align="center">
+  <img src="docs/teams.png" alt="Teams - Connect to multi-agent teams" width="100%">
+</p>
+<p align="center"><em>Teams — Connect to multi-agent teams</em></p>
+
 ## Quick Start
 
 ### Prerequisites
 
-- [Bun 1.3+](https://bun.sh)
+- [Bun](https://bun.sh) and [Git](https://git-scm.com)
 - An AgentOS server running (see [OPENAGENT.md](OPENAGENT.md) for setup)
 
-### Install from Source
+### Install
 
 ```bash
 git clone https://github.com/ajshedivy/openagent.git
 cd openagent
-bun install
+./install.sh
 ```
+
+This builds from source and installs the `openagent` binary to `~/.openagent/bin/`. The script automatically adds it to your PATH.
 
 ### Configure
 
-Create `opencode.json` in your project root:
+Create `openagent.json` in your project directory:
 
 ```json
 {
@@ -103,12 +111,13 @@ Create `opencode.json` in your project root:
 ### Run
 
 ```bash
-bun dev
+cd <your-project>
+openagent
 ```
 
 Use `/agno` to open the AgentOS Hub and connect to your agents.
 
-> **Note:** Installation scripts and npm publishing coming soon.
+> **Dev setup:** If you're contributing, use `bun install && bun dev` instead. See [CONTRIBUTING.md](./CONTRIBUTING.md).
 
 ## Documentation
 
